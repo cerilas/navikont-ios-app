@@ -1,0 +1,1233 @@
+NaviKont – DiGA Platformu Başlangıç Geliştirme Dokümanı
+
+1. Proje Özeti
+
+NaviKont, DiGA benzeri bir dijital sağlık uygulamasıdır. Sistem, tek bir hastalık uygulaması gibi görünse de arka planda çoklu hastalık ve çoklu uygulama yönetimini destekleyen modüler bir “DiGA fabrikası” mimarisi üzerine kuruludur.
+
+Bu platformda Süper Admin Paneli, Doktor Paneli ve Hasta Mobil Uygulaması birlikte çalışır. Süper Admin tarafında hastalıklar, uygulamalar, app versiyonları, modüller, anketler, günlük check-in formları, hasta yolculukları, bildirim şablonları ve kurallar yönetilir. Doktor paneli üzerinden hastalar belirli bir app/programa atanır. Hasta ise mobil uygulamada kendisine atanmış program akışını takip eder, içerikleri tamamlar, anketleri doldurur, günlük check-in verilerini girer ve ilerleme/risk durumları sistem tarafından izlenir.
+
+Bu doküman, NaviKont uygulamasının geliştirme sürecinde yapay zekaya veya geliştiriciye verilecek başlangıç bağlamıdır.
+
+⸻
+
+2. Aktif Geliştirilen Uygulama
+
+Şu anda geliştirilen app adı:
+
+NaviKont
+
+Bu app, platformdaki çoklu app mimarisinin bir örneğidir. Tüm içerikler, modüller, akışlar, anketler ve hasta atamaları veritabanında belirli bir app_id üzerinden yönetilir.
+
+Aktif NaviKont App ID:
+
+NAVIKONT_APP_ID=3ee42ade-0563-4eae-9c37-65b878667446
+
+Uygulama geliştirilirken bütün sorgular, içerik çekme işlemleri, modül listeleme, journey/akış okuma, hasta enrollments ve app’e özel veri işlemleri bu app_id üzerinden filtrelenmelidir.
+
+⸻
+
+3. Veritabanı Bağlantısı
+
+Veritabanı PostgreSQL kullanmaktadır.
+
+Canlı bağlantı bilgisi doğrudan kod içine, dokümana veya prompt içine yazılmamalıdır. Bunun yerine .env dosyası kullanılmalıdır.
+
+Örnek .env yapısı:
+
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+NAVIKONT_APP_ID="3ee42ade-0563-4eae-9c37-65b878667446"
+
+Uygulama içinde bağlantı şu şekilde okunmalıdır:
+
+const databaseUrl = process.env.DATABASE_URL;
+const appId = process.env.NAVIKONT_APP_ID;
+
+Güvenlik notu: Gerçek DB URL, şifre içerdiği için GitHub, frontend kodu, client bundle, public loglar, promptlar veya hata çıktılarında görünmemelidir.
+
+⸻
+
+4. Platformun Temel Mantığı
+
+Bu veritabanı yapısı tek bir uygulamaya özel değil, birden fazla DiGA uygulamasını yönetebilecek ortak bir altyapıdır.
+
+Genel yapı şu şekildedir:
+
+Disease Category
+   ↓
+Disease
+   ↓
+App
+   ↓
+App Version
+   ↓
+Modules / Questionnaires / Check-ins / Journey
+   ↓
+Patient Enrollment
+   ↓
+Patient Progress / Responses / Measurements / Alerts
+
+NaviKont da bu yapıdaki bir content_apps kaydıdır.
+
+⸻
+
+5. Kullanıcı Rolleri
+
+Sistemde temel kullanıcı tipi core_users tablosunda tutulur.
+
+Beklenen kullanıcı türleri:
+
+* Süper Admin
+* Doktor
+* Hasta
+* Kurum kullanıcısı / klinik yetkilisi
+* İçerik yöneticisi
+* Medikal direktör
+
+Roller ve yetkiler şu tablolarla yönetilir:
+
+core_users
+core_roles
+core_permissions
+core_role_permissions
+core_user_roles
+core_organizations
+core_user_organizations
+
+Hasta mobil uygulamasında ana kullanıcı tipi hastadır. Ancak hasta çoğu durumda bir doktor veya kurum tarafından programa atanmış olabilir.
+
+⸻
+
+6. Ana Tablolar ve Görevleri
+
+6.1 Kullanıcı ve Yetki Tabloları
+
+core_users
+core_roles
+core_permissions
+core_role_permissions
+core_user_roles
+core_organizations
+core_user_organizations
+
+Bu tablolar kullanıcı hesaplarını, rolleri, organizasyonları ve yetkileri yönetir.
+
+Özellikle hasta mobil uygulamasında giriş yapan kullanıcı core_users kaydına sahiptir. Hasta profiline ilişkin sağlık ve demografik bilgiler ise patient_profiles tablosunda tutulur.
+
+⸻
+
+6.2 Hastalık ve App Tanımı
+
+medical_disease_categories
+medical_diseases
+content_apps
+content_app_versions
+
+Bu tablolar sistemdeki hastalıkları ve her hastalığa bağlı uygulamaları yönetir.
+
+NaviKont için ana app kaydı content_apps tablosundadır.
+
+Uygulama geliştirilirken app verisi şu mantıkla çekilmelidir:
+
+SELECT *
+FROM content_apps
+WHERE id = :NAVIKONT_APP_ID
+  AND deleted_at IS NULL;
+
+Aktif veya yayınlanmış app versiyonu için:
+
+SELECT *
+FROM content_app_versions
+WHERE app_id = :NAVIKONT_APP_ID
+  AND status = 'published'
+ORDER BY published_at DESC
+LIMIT 1;
+
+Eğer henüz published versiyon yoksa geliştirme ortamında draft versiyon da dikkate alınabilir.
+
+⸻
+
+6.3 Modül Yönetimi
+
+content_module_types
+content_modules
+content_module_versions
+content_app_version_modules
+
+Modüller, NaviKont içinde hastaya gösterilecek ana içerik birimleridir.
+
+Örnek modül tipleri:
+
+* Eğitim içeriği
+* Video
+* Bilgilendirme kartı
+* Egzersiz
+* Nefes egzersizi
+* Görev
+* Soru-cevap
+* Günlük yönlendirme
+* Klinik bilgilendirme
+* Davranışsal müdahale içeriği
+
+content_module_types tablosu modül tiplerini ve her tipin JSON şemasını tutar.
+
+content_modules app’e bağlı modül ana kaydıdır.
+
+content_module_versions modülün belirli app versiyonu içindeki içerik ve ayarlarını tutar.
+
+content_app_version_modules ise belirli app versiyonundaki modül sıralamasını ve zorunluluk bilgisini tutar.
+
+Hasta uygulamasında modüller genellikle şu mantıkla çekilmelidir:
+
+SELECT
+  cm.id AS module_id,
+  cm.name,
+  cmt.code AS module_type,
+  cmv.id AS module_version_id,
+  cmv.title,
+  cmv.subtitle,
+  cmv.content,
+  cmv.settings,
+  cmv.completion_rules,
+  cmv.visibility_rules,
+  cavm.sort_order,
+  cavm.section_name,
+  cavm.is_required
+FROM content_app_version_modules cavm
+JOIN content_module_versions cmv ON cmv.id = cavm.module_version_id
+JOIN content_modules cm ON cm.id = cmv.module_id
+JOIN content_module_types cmt ON cmt.id = cm.module_type_id
+WHERE cavm.app_version_id = :APP_VERSION_ID
+  AND cm.app_id = :NAVIKONT_APP_ID
+  AND cm.deleted_at IS NULL
+ORDER BY cavm.sort_order ASC;
+
+⸻
+
+6.4 Anket ve Klinik Ölçek Yönetimi
+
+forms_questionnaires
+forms_questionnaire_versions
+forms_questions
+forms_question_options
+patient_questionnaire_responses
+patient_questionnaire_answers
+
+Bu tablolar klinik anketleri, ölçekleri ve hasta cevaplarını yönetir.
+
+Örnek kullanım:
+
+* İlk değerlendirme anketi
+* Semptom skoru
+* Yaşam kalitesi ölçeği
+* Ara değerlendirme
+* Final değerlendirme
+* Klinik risk sınıflaması
+
+forms_questionnaire_versions içinde skor hesaplama ve risk kuralları scoring_method ve risk_rules alanlarında tutulabilir.
+
+Mobil uygulamada anket ekranı oluşturulurken şu veri seti gereklidir:
+
+* Questionnaire version
+* Questions
+* Options
+* Validation rules
+* Display rules
+* Scoring rules
+
+Örnek sorgu:
+
+SELECT
+  fqv.id AS questionnaire_version_id,
+  fqv.title,
+  fqv.description_html,
+  fqv.scoring_method,
+  fqv.risk_rules,
+  q.id AS question_id,
+  q.question_key,
+  q.question_type,
+  q.label,
+  q.description_html,
+  q.placeholder,
+  q.is_required,
+  q.sort_order,
+  q.validation_rules,
+  q.display_rules,
+  q.metadata
+FROM forms_questionnaire_versions fqv
+JOIN forms_questionnaires fq ON fq.id = fqv.questionnaire_id
+JOIN forms_questions q ON q.questionnaire_version_id = fqv.id
+WHERE fq.app_id = :NAVIKONT_APP_ID
+  AND fqv.id = :QUESTIONNAIRE_VERSION_ID
+ORDER BY q.sort_order ASC;
+
+Seçenekli sorular için:
+
+SELECT *
+FROM forms_question_options
+WHERE question_id = :QUESTION_ID
+ORDER BY sort_order ASC;
+
+⸻
+
+6.5 Günlük Check-in Sistemi
+
+forms_checkin_templates
+forms_checkin_template_versions
+forms_checkin_fields
+patient_checkin_submissions
+patient_checkin_values
+patient_streaks
+
+Check-in sistemi hastanın günlük veya periyodik olarak veri girmesini sağlar.
+
+Örnek check-in alanları:
+
+* Bugünkü semptom durumu
+* Ağrı skoru
+* Tansiyon
+* Nabız
+* Kilo
+* Uyku durumu
+* İlaç kullanımı
+* Su tüketimi
+* Günlük görev tamamlandı mı?
+* Ruh hali
+* Risk belirtisi
+
+Check-in şablonu app’e bağlıdır. Her şablonun versiyonu app versiyonuna bağlanabilir.
+
+Hasta check-in gönderdiğinde:
+
+1. patient_checkin_submissions kaydı oluşturulur.
+2. Her alan için patient_checkin_values kaydı oluşturulur.
+3. Risk kuralları çalıştırılır.
+4. Gerekirse patient_risk_alerts kaydı oluşturulur.
+5. Streak güncellenir.
+
+Aynı hasta, aynı enrollment, aynı check-in template ve aynı tarih için sadece bir submission oluşturmalıdır.
+
+Bu zaten şu unique index ile desteklenmektedir:
+
+patient_checkin_submissions_enrollment_id_checkin_template__key
+
+⸻
+
+6.6 Journey / Hasta Akışı
+
+Sistemde iki journey yapısı görülmektedir:
+
+journey_journeys
+journey_journey_steps
+content_journeys
+content_journey_steps
+
+Geliştirme sırasında tek bir journey yapısının ana yapı olarak seçilmesi önerilir.
+
+Mevcut patient_app_enrollments tablosundaki journey_id, content_journeys tablosuna referans vermektedir. Bu nedenle hasta mobil uygulamasında ilk aşamada ana journey kaynağı olarak aşağıdaki yapı kullanılabilir:
+
+content_journeys
+content_journey_steps
+
+Journey mantığı:
+
+* Hasta bir app’e atanır.
+* Hastanın bir enrollment kaydı oluşur.
+* Enrollment bir journey’ye bağlanır.
+* Journey içinde gün bazlı adımlar bulunur.
+* Hasta, mevcut gününe göre ilgili modülleri/görevleri görür.
+
+Örnek:
+
+Day 1
+  - Tanıtım modülü
+  - İlk değerlendirme anketi
+  - Günlük check-in
+Day 2
+  - Eğitim modülü
+  - Günlük görev
+Day 7
+  - Haftalık değerlendirme
+  - Semptom check-in
+Day 30
+  - Ara değerlendirme
+Day 90
+  - Final değerlendirme
+
+Journey adımları şu tablodan çekilir:
+
+SELECT
+  cjs.*
+FROM content_journey_steps cjs
+JOIN content_journeys cj ON cj.id = cjs.journey_id
+WHERE cj.app_id = :NAVIKONT_APP_ID
+  AND cj.id = :JOURNEY_ID
+ORDER BY cjs.day_number ASC, cjs.order_in_day ASC;
+
+⸻
+
+6.7 Hasta Enrollment Yapısı
+
+patient_app_enrollments
+patient_module_progress
+
+Bir hasta NaviKont programına dahil edildiğinde patient_app_enrollments kaydı oluşur.
+
+Bu kayıt şunları belirler:
+
+* Hasta kim?
+* Doktor kim?
+* Hangi organizasyona bağlı?
+* Hangi app?
+* Hangi app versiyonu?
+* Hangi journey?
+* Başlangıç tarihi ne?
+* Güncel gün ne?
+* İlerleme yüzdesi ne?
+* Program tamamlandı mı?
+
+Hasta mobil uygulamasında giriş yaptıktan sonra aktif enrollment şu şekilde bulunabilir:
+
+SELECT *
+FROM patient_app_enrollments
+WHERE patient_user_id = :CURRENT_USER_ID
+  AND app_id = :NAVIKONT_APP_ID
+  AND status = 'active'
+ORDER BY assigned_at DESC
+LIMIT 1;
+
+Bir hasta aynı anda birden fazla programa atanabilecekse, uygulama aktif enrollment listesini desteklemelidir. NaviKont özelinde ilk sürümde tek aktif enrollment varsayılabilir.
+
+⸻
+
+6.8 Hasta İlerlemesi
+
+patient_module_progress
+
+Bu tablo modül bazlı ilerleme takibini yapar.
+
+Bir hasta modülü açtığında:
+
+* status = started
+* started_at doldurulur.
+
+Modül tamamlandığında:
+
+* status = completed
+* completed_at doldurulur.
+* progress_percent = 100
+* result_data içine modüle özel sonuç yazılabilir.
+
+Aynı enrollment içinde aynı module version için tek progress kaydı bulunmalıdır.
+
+Bu şu unique index ile desteklenir:
+
+patient_module_progress_enrollment_id_module_version_id_key
+
+⸻
+
+6.9 Ölçümler
+
+patient_measurements
+
+Bu tablo hastanın klinik veya davranışsal ölçümlerini tutar.
+
+Örnek measurement type değerleri:
+
+blood_pressure_systolic
+blood_pressure_diastolic
+heart_rate
+weight
+waist_circumference
+sleep_duration
+pain_score
+symptom_score
+daily_steps
+water_intake
+
+Not: Çift değerli ölçümlerde iki ayrı kayıt veya metadata içinde ek değer kullanılabilir. Raporlama ihtiyacı büyürse ölçüm tiplerine özel tablolar düşünülebilir.
+
+⸻
+
+6.10 Risk Uyarıları
+
+patient_risk_alerts
+
+Bu tablo hastanın verdiği cevaplar, check-in verileri veya ölçümleri sonucunda oluşan klinik/davranışsal risk uyarılarını tutar.
+
+Örnek uyarılar:
+
+* Kritik tansiyon değeri
+* Semptom skorunda kötüleşme
+* Uzun süre check-in yapmama
+* Yüksek riskli anket sonucu
+* Doktor değerlendirmesi gerektiren durum
+* Programdan kopma riski
+
+Uyarı seviyeleri örnek olarak:
+
+low
+medium
+high
+critical
+
+Durum değerleri örnek olarak:
+
+open
+acknowledged
+resolved
+dismissed
+
+⸻
+
+6.11 Onam, KVKK ve Audit
+
+core_consent_documents
+patient_consents
+audit_logs
+
+Sağlık uygulaması olduğu için onam süreçleri önemlidir.
+
+Hasta uygulamayı kullanmadan önce gerekli onam belgelerini kabul etmelidir.
+
+Örnek onam belgeleri:
+
+* KVKK aydınlatma metni
+* Açık rıza metni
+* Kullanıcı sözleşmesi
+* Sağlık verisi işleme izni
+* Klinik değerlendirme onamı
+* Uzaktan izleme bilgilendirmesi
+
+Her kritik işlem audit log’a yazılabilir:
+
+* Hasta enrollment oluşturuldu
+* Doktor hasta notu ekledi
+* Hasta anket gönderdi
+* Risk alarmı oluştu
+* Onam kabul edildi
+* Hasta programı tamamladı
+
+⸻
+
+6.12 Bildirimler
+
+content_notification_templates
+patient_notifications
+
+Sistem, app’e özel bildirim şablonları ve hastaya gönderilecek bildirimleri destekler.
+
+Örnek bildirimler:
+
+* Günlük check-in hatırlatması
+* Modül tamamlama hatırlatması
+* Anket zamanı geldi
+* Doktor mesajı var
+* Program ilerleme bildirimi
+* Risk uyarısı sonrası yönlendirme
+
+Bildirim şablonları content_notification_templates tablosundadır. Hastaya özel gönderimler patient_notifications tablosunda tutulur.
+
+⸻
+
+6.13 Rozet ve Gamification
+
+content_badges
+patient_badges
+patient_streaks
+
+Bu yapı hastanın uygulamaya bağlılığını artırmak için kullanılabilir.
+
+Örnek rozetler:
+
+* İlk check-in tamamlandı
+* 7 gün üst üste giriş yaptı
+* İlk modül tamamlandı
+* Haftalık hedef tamamlandı
+* Programın %50’si tamamlandı
+* Program tamamlandı
+
+⸻
+
+6.14 Analytics
+
+analytics_events
+
+Hasta ve uygulama davranışları event bazlı izlenebilir.
+
+Örnek event adları:
+
+app_opened
+module_viewed
+module_completed
+questionnaire_started
+questionnaire_submitted
+checkin_submitted
+notification_opened
+risk_alert_triggered
+journey_day_completed
+enrollment_completed
+
+Bu eventler ileride ürün analitiği, klinik çıktı analizi ve değer bazlı geri ödeme modeli için kullanılabilir.
+
+⸻
+
+7. Hasta Mobil Uygulaması İçin Temel Ekranlar
+
+NaviKont hasta uygulaması için ilk sürümde şu ekranlar geliştirilmelidir:
+
+7.1 Auth Ekranları
+
+* Giriş yap
+* Şifremi unuttum
+* Yeni şifre belirleme
+* Gerekirse ilk kayıt / davetli kayıt
+
+Ana tablo:
+
+core_users
+
+⸻
+
+7.2 Onboarding / Onam Ekranları
+
+* Uygulama tanıtımı
+* KVKK/onam belgeleri
+* Hasta profil bilgileri
+* Program başlangıç bilgilendirmesi
+
+Ana tablolar:
+
+core_consent_documents
+patient_consents
+patient_profiles
+patient_app_enrollments
+
+⸻
+
+7.3 Ana Dashboard
+
+Dashboard şunları göstermelidir:
+
+* Aktif program adı
+* Program günü
+* İlerleme yüzdesi
+* Bugünkü görevler
+* Tamamlanan modüller
+* Bekleyen check-in
+* Bekleyen anket
+* Streak bilgisi
+* Doktor/klinik bilgisi
+* Risk veya önemli uyarılar
+
+Ana tablolar:
+
+patient_app_enrollments
+content_journeys
+content_journey_steps
+content_modules
+content_module_versions
+patient_module_progress
+patient_streaks
+patient_risk_alerts
+
+⸻
+
+7.4 Bugünkü Akış / Görevler
+
+Hasta, enrollment içindeki current_day değerine göre o gün açılan görevleri görmelidir.
+
+Temel mantık:
+
+active enrollment bulunur
+↓
+journey bulunur
+↓
+current_day alınır
+↓
+o güne ait journey steps çekilir
+↓
+modül/progress bilgileriyle birleştirilir
+↓
+hasta ekranına görev listesi olarak gösterilir
+
+⸻
+
+7.5 Modül Detay Ekranı
+
+Modül tipi dinamik olmalıdır. content_module_types.code değerine göre UI render edilir.
+
+Örnek:
+
+article
+video
+exercise
+breathing
+task
+quiz
+education_card
+
+Modül içeriği content_module_versions.content JSON alanından okunur.
+
+⸻
+
+7.6 Anket Ekranı
+
+Anket ekranı tamamen dinamik olmalıdır.
+
+Soru tipleri örnek olarak:
+
+single_choice
+multiple_choice
+number
+text
+textarea
+scale
+slider
+boolean
+date
+time
+
+Cevaplar şu tablolara yazılır:
+
+patient_questionnaire_responses
+patient_questionnaire_answers
+
+Anket gönderiminden sonra skor ve risk hesaplanmalıdır.
+
+⸻
+
+7.7 Check-in Ekranı
+
+Check-in ekranı da dinamik olmalıdır.
+
+Alan tipleri örnek olarak:
+
+number
+text
+boolean
+scale
+slider
+single_choice
+multiple_choice
+date
+time
+
+Cevaplar şu tablolara yazılır:
+
+patient_checkin_submissions
+patient_checkin_values
+
+Check-in gönderiminden sonra streak ve risk kuralları güncellenmelidir.
+
+⸻
+
+7.8 İlerleme Ekranı
+
+Hasta ilerleme ekranında şunlar gösterilebilir:
+
+* Program yüzdesi
+* Tamamlanan gün sayısı
+* Tamamlanan modüller
+* Streak
+* Anket skorları
+* Ölçüm grafikleri
+* Rozetler
+
+Ana tablolar:
+
+patient_app_enrollments
+patient_module_progress
+patient_streaks
+patient_questionnaire_responses
+patient_measurements
+patient_badges
+
+⸻
+
+7.9 Bildirimler
+
+Hasta bildirimlerini görebilmeli ve okundu olarak işaretleyebilmelidir.
+
+Ana tablo:
+
+patient_notifications
+
+⸻
+
+7.10 Profil ve Ayarlar
+
+* Hasta profil bilgileri
+* Şifre değiştirme
+* Onam belgeleri
+* Bildirim tercihleri
+* Doktor/klinik bilgisi
+* Hesap durumu
+
+Ana tablolar:
+
+core_users
+patient_profiles
+patient_consents
+patient_doctor_patients
+core_organizations
+
+⸻
+
+8. Admin Panel İçin Temel Modüller
+
+Admin panel, NaviKont içeriğini ve program akışını yönetmelidir.
+
+İlk aşamada şu ekranlar yeterlidir:
+
+8.1 App Yönetimi
+
+* App bilgileri
+* App açıklamaları
+* App versiyonları
+* Yayına alma
+* Taslak yönetimi
+
+Tablolar:
+
+content_apps
+content_app_versions
+
+⸻
+
+8.2 Modül Yönetimi
+
+* Modül oluşturma
+* Modül tipi seçme
+* JSON içerik düzenleme
+* Modül versiyonlama
+* App version içine modül ekleme
+* Sıralama
+* Zorunlu/opsiyonel ayarı
+
+Tablolar:
+
+content_module_types
+content_modules
+content_module_versions
+content_app_version_modules
+
+⸻
+
+8.3 Anket Yönetimi
+
+* Anket oluşturma
+* Soru ekleme
+* Seçenek ekleme
+* Skorlama kuralları
+* Risk kuralları
+* App version ile ilişkilendirme
+
+Tablolar:
+
+forms_questionnaires
+forms_questionnaire_versions
+forms_questions
+forms_question_options
+
+⸻
+
+8.4 Check-in Yönetimi
+
+* Check-in şablonu oluşturma
+* Alan ekleme
+* Günlük/haftalık frekans belirleme
+* Reminder rules
+* Risk rules
+* Streak rules
+
+Tablolar:
+
+forms_checkin_templates
+forms_checkin_template_versions
+forms_checkin_fields
+
+⸻
+
+8.5 Journey Yönetimi
+
+* Program akışı oluşturma
+* Gün bazlı görevler
+* Modül ekleme
+* Sıralama
+* Prerequisite rules
+* Time window
+* Delay minutes
+
+Tablolar:
+
+content_journeys
+content_journey_steps
+
+⸻
+
+8.6 Hasta Yönetimi
+
+* Hasta listesi
+* Hasta profili
+* Hastayı programa atama
+* Aktif program durumu
+* İlerleme görüntüleme
+* Anket cevapları
+* Check-in geçmişi
+* Risk alarmları
+
+Tablolar:
+
+core_users
+patient_profiles
+patient_app_enrollments
+patient_module_progress
+patient_questionnaire_responses
+patient_checkin_submissions
+patient_risk_alerts
+
+⸻
+
+8.7 Doktor Paneli
+
+* Doktora bağlı hastalar
+* Hasta detay ekranı
+* Risk uyarıları
+* Hasta notları
+* Program ilerleme takibi
+* Ölçüm ve check-in geçmişi
+
+Tablolar:
+
+patient_doctor_patients
+patient_app_enrollments
+patient_doctor_notes
+patient_risk_alerts
+patient_measurements
+patient_checkin_submissions
+patient_questionnaire_responses
+
+⸻
+
+9. API Tasarım Önerisi
+
+Backend API geliştirilirken route yapısı app merkezli olmalıdır.
+
+Örnek API yapısı:
+
+GET    /api/apps/navikont
+GET    /api/apps/navikont/version
+GET    /api/patient/me
+GET    /api/patient/enrollment
+GET    /api/patient/dashboard
+GET    /api/patient/today
+GET    /api/patient/modules/:moduleVersionId
+POST   /api/patient/modules/:moduleVersionId/start
+POST   /api/patient/modules/:moduleVersionId/complete
+GET    /api/patient/questionnaires/:questionnaireVersionId
+POST   /api/patient/questionnaires/:questionnaireVersionId/submit
+GET    /api/patient/checkins/:checkinTemplateVersionId
+POST   /api/patient/checkins/:checkinTemplateVersionId/submit
+GET    /api/patient/progress
+GET    /api/patient/notifications
+POST   /api/patient/notifications/:id/read
+GET    /api/patient/risk-alerts
+
+Admin tarafı:
+
+GET    /api/admin/apps/:appId
+GET    /api/admin/apps/:appId/modules
+POST   /api/admin/apps/:appId/modules
+PUT    /api/admin/modules/:moduleId
+GET    /api/admin/apps/:appId/questionnaires
+POST   /api/admin/apps/:appId/questionnaires
+GET    /api/admin/apps/:appId/checkins
+POST   /api/admin/apps/:appId/checkins
+GET    /api/admin/apps/:appId/journeys
+POST   /api/admin/apps/:appId/journeys
+GET    /api/admin/apps/:appId/patients
+POST   /api/admin/apps/:appId/enrollments
+
+⸻
+
+10. Temel İş Akışları
+
+10.1 Hasta Uygulamaya Giriş Yaptığında
+
+1. Kullanıcı login olur.
+2. core_users kaydı doğrulanır.
+3. patient_profiles kaydı kontrol edilir.
+4. Aktif patient_app_enrollments kaydı bulunur.
+5. App ID = NAVIKONT_APP_ID ile filtrelenir.
+6. App version bulunur.
+7. Journey bulunur.
+8. current_day değerine göre bugünkü görevler çekilir.
+9. Progress, check-in, questionnaire ve notification durumları dashboard’a eklenir.
+
+⸻
+
+10.2 Hasta Modül Tamamladığında
+
+1. module_version_id alınır.
+2. enrollment_id doğrulanır.
+3. Bu modül ilgili app ve app version içinde mi kontrol edilir.
+4. patient_module_progress upsert edilir.
+5. status = completed yapılır.
+6. completed_at set edilir.
+7. enrollment progress_percent güncellenir.
+8. Gerekirse analytics_events kaydı oluşturulur.
+9. Gerekirse badge/streak güncellenir.
+
+⸻
+
+10.3 Hasta Anket Gönderdiğinde
+
+1. questionnaire_version_id doğrulanır.
+2. Sorular ve seçenekler çekilir.
+3. Cevaplar validation_rules’a göre kontrol edilir.
+4. patient_questionnaire_responses kaydı oluşturulur.
+5. Her cevap için patient_questionnaire_answers kaydı oluşturulur.
+6. scoring_method ile total_score hesaplanır.
+7. risk_rules ile risk_level hesaplanır.
+8. Risk yüksekse patient_risk_alerts oluşturulur.
+9. analytics_events kaydı oluşturulur.
+
+⸻
+
+10.4 Hasta Check-in Gönderdiğinde
+
+1. checkin_template_version_id doğrulanır.
+2. Aynı tarih için submission var mı kontrol edilir.
+3. Yoksa patient_checkin_submissions oluşturulur.
+4. Her field için patient_checkin_values oluşturulur.
+5. risk_rules çalıştırılır.
+6. patient_streaks güncellenir.
+7. Gerekirse patient_risk_alerts oluşturulur.
+8. analytics_events kaydı oluşturulur.
+
+⸻
+
+11. Güvenlik ve Sağlık Verisi Notları
+
+Bu sistem sağlık verisi işlediği için geliştirme sırasında aşağıdaki kurallara dikkat edilmelidir:
+
+* DB URL asla frontend tarafına verilmemelidir.
+* Hasta sağlık verileri public API’den dönmemelidir.
+* Her endpoint authentication gerektirmelidir.
+* Hasta sadece kendi verisini görebilmelidir.
+* Doktor sadece kendisine atanmış hastaları görebilmelidir.
+* Admin panel yetkileri role/permission bazlı kontrol edilmelidir.
+* Tüm kritik işlemler audit log’a yazılmalıdır.
+* KVKK/onam belgeleri kabul edilmeden hasta app’i kullanmamalıdır.
+* Soft delete kullanılan tablolarda deleted_at IS NULL filtresi unutulmamalıdır.
+* App bazlı sorgularda app_id = NAVIKONT_APP_ID filtresi zorunlu kabul edilmelidir.
+* JSONB alanlardaki kurallar backend tarafında validate edilmelidir.
+
+⸻
+
+12. Geliştirme Öncelik Sırası
+
+İlk MVP için önerilen geliştirme sırası:
+
+Faz 1 – Temel Hasta App
+
+1. Auth
+2. Aktif enrollment bulma
+3. Dashboard
+4. Bugünkü görevler
+5. Modül görüntüleme
+6. Modül tamamlandı işaretleme
+7. Basit progress hesaplama
+
+Faz 2 – Dinamik Formlar
+
+1. Questionnaire render engine
+2. Questionnaire submit
+3. Check-in render engine
+4. Check-in submit
+5. Streak sistemi
+6. Basit risk hesaplama
+
+Faz 3 – Admin İçerik Yönetimi
+
+1. App version yönetimi
+2. Modül CRUD
+3. Questionnaire CRUD
+4. Check-in CRUD
+5. Journey builder
+6. Publish flow
+
+Faz 4 – Doktor Paneli
+
+1. Hasta listesi
+2. Hasta detay ekranı
+3. İlerleme takibi
+4. Anket sonuçları
+5. Check-in geçmişi
+6. Risk alarmları
+7. Doktor notları
+
+Faz 5 – Klinik ve Regülasyon Katmanı
+
+1. Consent flow
+2. Audit log
+3. Gelişmiş risk rules
+4. Klinik raporlar
+5. Outcome tracking
+6. Değer bazlı geri ödeme analizleri
+
+⸻
+
+13. Kodlama Yaklaşımı
+
+Uygulama geliştirilirken hard-coded içeriklerden kaçınılmalıdır.
+
+Yanlış yaklaşım:
+
+if (appName === "NaviKont") {
+  showOABQuestionnaire();
+}
+
+Doğru yaklaşım:
+
+const appId = process.env.NAVIKONT_APP_ID;
+const activeEnrollment = await getActiveEnrollment(userId, appId);
+const todaySteps = await getTodayJourneySteps(activeEnrollment);
+
+UI tarafı modül tiplerine ve JSON içerik şemalarına göre dinamik render edilmelidir.
+
+Örnek:
+
+switch (moduleType) {
+  case "article":
+    return <ArticleModule content={content} />;
+  case "video":
+    return <VideoModule content={content} />;
+  case "exercise":
+    return <ExerciseModule content={content} />;
+  case "breathing":
+    return <BreathingModule content={content} />;
+  default:
+    return <GenericModule content={content} />;
+}
+
+⸻
+
+14. Backend Servis Katmanları
+
+Backend tarafında şu servisler oluşturulabilir:
+
+AuthService
+UserService
+PatientService
+EnrollmentService
+AppService
+AppVersionService
+JourneyService
+ModuleService
+QuestionnaireService
+CheckinService
+ProgressService
+RiskEngineService
+NotificationService
+ConsentService
+AuditLogService
+AnalyticsService
+
+Özellikle RiskEngineService, QuestionnaireService ve CheckinService JSONB tabanlı kuralları okuyup çalıştıracak şekilde tasarlanmalıdır.
+
+⸻
+
+15. Önemli Teknik Kararlar
+
+15.1 App ID Her Zaman Merkezi Olmalı
+
+NaviKont özelinde bütün sorgular NAVIKONT_APP_ID ile sınırlandırılmalıdır.
+
+15.2 Published Versiyon Mantığı
+
+Hasta uygulaması mümkün olduğunca published app version üzerinden çalışmalıdır.
+
+Development ortamında draft desteklenebilir.
+
+15.3 Journey Kaynağı Netleştirilmeli
+
+Mevcut şemada hem journey_journeys hem content_journeys vardır. patient_app_enrollments.journey_id, content_journeys tablosuna bağlandığı için ilk sürümde content_journeys ana journey yapısı kabul edilmelidir.
+
+15.4 JSONB Alanları Validate Edilmeli
+
+Aşağıdaki alanlar backend tarafında şema bazlı doğrulanmalıdır:
+
+content_module_types.schema_definition
+content_module_types.ui_schema
+content_module_versions.content
+content_module_versions.settings
+content_module_versions.completion_rules
+content_module_versions.visibility_rules
+forms_questionnaire_versions.scoring_method
+forms_questionnaire_versions.risk_rules
+forms_questions.validation_rules
+forms_questions.display_rules
+forms_checkin_template_versions.streak_rules
+forms_checkin_template_versions.reminder_rules
+forms_checkin_template_versions.risk_rules
+forms_checkin_fields.validation_rules
+forms_checkin_fields.risk_rules
+content_journey_steps.prerequisite_rules
+
+⸻
+
+16. Yapay Zekaya Verilecek Ana Talimat
+
+Bu projede geliştirilecek uygulama NaviKont adlı hasta mobil uygulaması ve onu yöneten admin/doktor panelidir.
+
+Veritabanı çoklu DiGA app mimarisine sahiptir. NaviKont, bu platformdaki bir app’tir. Tüm veri işlemleri NAVIKONT_APP_ID = 3ee42ade-0563-4eae-9c37-65b878667446 ile sınırlandırılmalıdır.
+
+Kod yazarken içerikler hard-coded olmamalıdır. Modüller, anketler, check-in alanları ve journey akışları veritabanından dinamik olarak okunmalıdır.
+
+Hasta uygulamasının temel amacı:
+
+Hastanın kendisine atanmış NaviKont programını takip etmesi,
+günlük görevleri tamamlaması,
+anketleri ve check-in formlarını doldurması,
+ilerlemesini görmesi
+ve gerektiğinde doktorun risk/ilerleme durumunu takip edebilmesidir.
+
+Admin panelinin temel amacı:
+
+NaviKont app’inin modüllerini, anketlerini, check-in formlarını,
+journey akışlarını, bildirim şablonlarını ve hasta atamalarını
+veritabanı üzerinden yönetmektir.
+
+Doktor panelinin temel amacı:
+
+Doktorun kendisine atanmış hastaları görmesi,
+hastanın program ilerlemesini takip etmesi,
+anket ve check-in sonuçlarını incelemesi,
+risk uyarılarını yönetmesi
+ve hasta notları oluşturmasıdır.
+
+⸻
+
+17. İlk Geliştirilecek Özellik
+
+İlk geliştirme hedefi hasta mobil uygulaması için şu akışı ayağa kaldırmaktır:
+
+Login
+↓
+Aktif NaviKont enrollment bul
+↓
+Aktif app version bul
+↓
+Journey ve current_day bilgisini çek
+↓
+Bugünkü görevleri listele
+↓
+Modül detayını aç
+↓
+Modülü tamamlandı olarak işaretle
+↓
+Progress güncelle
+
+Bu akış çalıştıktan sonra questionnaire, check-in, streak, risk alert ve notification özellikleri eklenmelidir.
+

@@ -7,11 +7,71 @@
 
 import SwiftUI
 
+import UserNotifications
+
+// AppDelegate for handling APNs
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication, 
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        // Request authorization for push notifications
+        UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            if granted {
+                DispatchQueue.main.async {
+                    application.registerForRemoteNotifications()
+                }
+            } else if let error = error {
+                print("Notification permission error: \(error.localizedDescription)")
+            }
+        }
+        return true
+    }
+
+    func application(_ application: UIApplication, 
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print("Device Token: \(token)")
+        
+        // Save the token locally to be sent to backend upon login
+        UserDefaults.standard.set(token, forKey: "APNsDeviceToken")
+        
+        // If user is already logged in, send it immediately
+        if let _ = UserDefaults.standard.string(forKey: "authToken") {
+            Task {
+                try? await NetworkManager.shared.sendDeviceToken(token)
+            }
+        }
+    }
+
+    func application(_ application: UIApplication, 
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Failed to register for notifications: \(error.localizedDescription)")
+    }
+    
+    // Handle foreground notifications
+    func userNotificationCenter(_ center: UNUserNotificationCenter, 
+                                willPresent notification: UNNotification, 
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Show banner and play sound even if app is in foreground
+        completionHandler([.banner, .sound, .badge])
+    }
+}
+
 @main
 struct navikontApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var authService = AuthService()
+    
+    init() {
+        // Yenileme animasyonunun (spinner) rengini temanın ana rengi yapıyoruz
+        UIRefreshControl.appearance().tintColor = UIColor(Color(hex: "06B6D4"))
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authService)
         }
     }
 }
