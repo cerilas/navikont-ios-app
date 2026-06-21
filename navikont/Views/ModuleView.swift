@@ -3,8 +3,9 @@ import SwiftUI
 struct ModuleView: View {
     let task: JourneyStep
     @ObservedObject var viewModel: DashboardViewModel
+    var onComplete: (() -> Void)? = nil
 
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     @State private var isSubmitting = false
     @State private var showSuccess = false
     @State private var contentAppeared = false
@@ -35,92 +36,98 @@ struct ModuleView: View {
     }
 
     var body: some View {
-        ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+        NavigationView {
+            ZStack {
+                NKColors.bgPrimary.ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Hero Header
-                    heroHeader
-
-                    // Content Section
-                    VStack(alignment: .leading, spacing: 24) {
-                        dynamicContent
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        heroHeader
+                        VStack(alignment: .leading, spacing: 24) {
+                            dynamicContent
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 28)
+                        .offset(y: contentAppeared ? 0 : 30)
+                        .opacity(contentAppeared ? 1 : 0)
+                        Spacer(minLength: 120)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 28)
-                    .offset(y: contentAppeared ? 0 : 30)
-                    .opacity(contentAppeared ? 1 : 0)
+                }
 
-                    Spacer(minLength: 120)
+                VStack { Spacer(); bottomAction }
+
+                if showSuccess { successOverlay }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(NKColors.bgPrimary, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(NKColors.textSecondary)
+                    }
                 }
             }
-
-            // Bottom Action
-            VStack {
-                Spacer()
-                bottomAction
+            .onAppear {
+                withAnimation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.3)) {
+                    contentAppeared = true
+                }
             }
-
-            // Success Overlay
-            if showSuccess {
-                successOverlay
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(NKColors.bgPrimary, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .onAppear {
-            withAnimation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.3)) {
-                contentAppeared = true
-            }
-        }
-        .sheet(isPresented: $showQuestionnaire) {
-            if let targetId = getQuestionnaireTargetId() {
-                QuestionnaireView(
-                    questionnaireVersionId: targetId,
-                    moduleTitle: task.module.title,
-                    onComplete: {
-                        showQuestionnaire = false
-                        completeModule()
-                    }
-                )
-            }
-        }
-        .sheet(isPresented: $showCheckin) {
-            if let targetId = getCheckinTargetId() {
-                CheckinView(
-                    checkinTemplateId: targetId,
-                    moduleTitle: task.module.title,
-                    onComplete: {
-                        showCheckin = false
-                        completeModule()
-                    }
-                )
-            }
-        }
-        .fullScreenCover(isPresented: $isPdfFullScreen) {
-            if case .dictionary(let dict) = task.module.content,
-               let pdfUrl = (dict["fileUrl"]?.stringValue ?? dict["pdfUrl"]?.stringValue),
-               let url = URL(string: pdfUrl) {
-                NavigationView {
-                    EmbeddedPDFView(url: url)
-                        .edgesIgnoringSafeArea(.bottom)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    isPdfFullScreen = false
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 22))
-                                        .foregroundColor(NKColors.textSecondary)
-                                }
+            .sheet(isPresented: $showQuestionnaire) {
+                if let targetId = getQuestionnaireTargetId() {
+                    QuestionnaireView(
+                        questionnaireVersionId: targetId,
+                        moduleTitle: task.module.title,
+                        onComplete: {
+                            showQuestionnaire = false
+                            // QuestionnaireView already submitted the data.
+                            // Don't call completeModule() — it fails for pseudo-tasks (conditional assignment).
+                            // Just dismiss and reload.
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
+                                dismiss()
+                                onComplete?()
+                                Task { await viewModel.reloadDashboard() }
                             }
                         }
+                    )
+                }
+            }
+            .sheet(isPresented: $showCheckin) {
+                if let targetId = getCheckinTargetId() {
+                    CheckinView(
+                        checkinTemplateId: targetId,
+                        moduleTitle: task.module.title,
+                        onComplete: {
+                            showCheckin = false
+                            completeModule()
+                        }
+                    )
+                }
+            }
+            .fullScreenCover(isPresented: $isPdfFullScreen) {
+                if case .dictionary(let dict) = task.module.content,
+                   let pdfUrl = (dict["fileUrl"]?.stringValue ?? dict["pdfUrl"]?.stringValue),
+                   let url = URL(string: pdfUrl) {
+                    NavigationView {
+                        EmbeddedPDFView(url: url)
+                            .edgesIgnoringSafeArea(.bottom)
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button(action: { isPdfFullScreen = false }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 22))
+                                            .foregroundColor(NKColors.textSecondary)
+                                    }
+                                }
+                            }
+                    }
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
 
     // MARK: - Hero Header
@@ -686,7 +693,10 @@ struct ModuleView: View {
                 }
                 
                 Button(action: {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
+                    Task {
+                        await viewModel.reloadDashboard()
+                    }
                 }) {
                     Text("Devam Et")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
@@ -749,10 +759,35 @@ struct ModuleView: View {
 
             await MainActor.run {
                 if success {
-                    viewModel.markTaskCompleted(taskId: task.id)
                     isSubmitting = false
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                        showSuccess = true
+                    
+                    let qTypes = ["question_answer", "questionnaire", "quiz"]
+                    let isQuestionnaire = qTypes.contains(task.module.moduleType)
+                    
+                    Task {
+                        if isQuestionnaire {
+                            // Sheet is already closed (closed 0.65s ago by onComplete callback).
+                            // Just dismiss the parent fullScreenCover immediately.
+                            await MainActor.run {
+                                viewModel.markTaskCompleted(taskId: task.id)
+                                dismiss()
+                                onComplete?()
+                            }
+                            // Reload dashboard after navigation settles
+                            try? await Task.sleep(nanoseconds: 400_000_000)
+                            await viewModel.reloadDashboard()
+                        } else {
+                            await MainActor.run {
+                                viewModel.markTaskCompleted(taskId: task.id)
+                                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                                    showSuccess = true
+                                }
+                            }
+                            try? await Task.sleep(nanoseconds: 1_200_000_000)
+                            await MainActor.run { dismiss() }
+                            try? await Task.sleep(nanoseconds: 300_000_000)
+                            await viewModel.reloadDashboard()
+                        }
                     }
                 } else {
                     isSubmitting = false

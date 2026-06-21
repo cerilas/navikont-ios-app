@@ -29,6 +29,13 @@ struct QuestionnaireView: View {
         .task {
             await viewModel.load(versionId: questionnaireVersionId)
         }
+        .onChange(of: viewModel.showSuccess) { newValue in
+            if newValue {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                    onComplete()
+                }
+            }
+        }
     }
 
     // MARK: - Loading
@@ -213,23 +220,6 @@ struct QuestionnaireView: View {
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
                 }
-                
-                Button(action: {
-                    onComplete()
-                    dismiss()
-                }) {
-                    Text("Devam Et")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color(hex: "0F0F23"))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(
-                            Capsule()
-                                .fill(Color.white)
-                                .shadow(color: .white.opacity(0.2), radius: 10, y: 5)
-                        )
-                }
-                .padding(.bottom, 8)
             }
             .padding(32)
             .background(

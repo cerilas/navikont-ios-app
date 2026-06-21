@@ -14,6 +14,7 @@ struct DashboardView: View {
     
     @State private var scrollOffset: CGFloat = 0
     @State private var isRefreshing = false
+    @State private var selectedTask: JourneyStep? = nil
     
     var body: some View {
         Group {
@@ -42,7 +43,7 @@ struct DashboardView: View {
                             // Error State
                             errorSection(message: errorMsg)
                         } else if let enrollment = viewModel.activeEnrollment {
-                            if enrollment.currentDay > 0 {
+                            if enrollment.currentDay > 0 && !isPendingReview {
                                 // Stats Row
                                 statsSection(enrollment: enrollment)
                                 
@@ -50,7 +51,7 @@ struct DashboardView: View {
                                 progressCard(enrollment: enrollment)
                             }
                             
-                            // Today's Tasks
+                            // Today's Tasks (or Pending Review card)
                             tasksSection
                         }
                     }
@@ -64,6 +65,11 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showProfile) {
                 ProfileView()
+            }
+            .fullScreenCover(item: $selectedTask) { task in
+                ModuleView(task: task, viewModel: viewModel, onComplete: {
+                    selectedTask = nil
+                })
             }
         }
         .navigationViewStyle(.stack)
@@ -288,56 +294,212 @@ struct DashboardView: View {
         .padding(.horizontal, 20)
     }
     
-    // MARK: - Tasks
+    private var isPendingReview: Bool {
+        viewModel.todayTasks.count == 1 &&
+        viewModel.todayTasks.first?.module.title == "Değerlendirmeniz Alındı"
+    }
     
     private var tasksSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Bugünkü Görevler")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundColor(NKColors.textPrimary)
-                
-                Spacer()
-                
-                Text("\(completedCount)/\(viewModel.todayTasks.count)")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(NKColors.textSecondary)
-            }
-            .padding(.horizontal, 20)
-            
-            ForEach(Array(viewModel.todayTasks.enumerated()), id: \.element.id) { index, task in
-                NavigationLink(destination: ModuleView(task: task, viewModel: viewModel)) {
-                    TaskCard(task: task, index: index)
+            if isPendingReview {
+                pendingReviewCard
+            } else {
+                HStack {
+                    Text("Bugünkü Görevler")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(NKColors.textPrimary)
+                    
+                    Spacer()
+                    
+                    Text("\(completedCount)/\(viewModel.todayTasks.count)")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(NKColors.textSecondary)
                 }
-                .buttonStyle(ScaleButtonStyle())
-            }
-            .padding(.horizontal, 20)
-            
-            if !viewModel.todayTasks.isEmpty {
-                Button(action: {
-                    if let enrollment = viewModel.activeEnrollment {
-                        viewModel.updateCurrentDay(to: (enrollment.currentDay ?? 1) + 1)
-                    }
-                }) {
-                    HStack {
-                        Text("Günü Tamamla")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                        Image(systemName: "arrow.right.circle.fill")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(viewModel.allRequiredTasksCompleted ? NKColors.accentTeal : Color.gray.opacity(0.3))
-                    .foregroundColor(.white)
-                    .cornerRadius(16)
-                    .shadow(color: viewModel.allRequiredTasksCompleted ? NKColors.accentTeal.opacity(0.3) : Color.clear, radius: 8, x: 0, y: 4)
-                }
-                .disabled(!viewModel.allRequiredTasksCompleted)
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
+                
+                ForEach(Array(viewModel.todayTasks.enumerated()), id: \.element.id) { index, task in
+                    Button(action: { selectedTask = task }) {
+                        TaskCard(task: task, index: index)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+                .padding(.horizontal, 20)
+                
+                if !viewModel.todayTasks.isEmpty {
+                    Button(action: {
+                        if let enrollment = viewModel.activeEnrollment {
+                            viewModel.updateCurrentDay(to: (enrollment.currentDay ?? 1) + 1)
+                        }
+                    }) {
+                        HStack {
+                            Text("Günü Tamamla")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                            Image(systemName: "arrow.right.circle.fill")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(viewModel.allRequiredTasksCompleted ? NKColors.accentTeal : Color.gray.opacity(0.3))
+                        .foregroundColor(.white)
+                        .cornerRadius(16)
+                        .shadow(color: viewModel.allRequiredTasksCompleted ? NKColors.accentTeal.opacity(0.3) : Color.clear, radius: 8, x: 0, y: 4)
+                    }
+                    .disabled(!viewModel.allRequiredTasksCompleted)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                }
             }
         }
         .offset(y: tasksAppeared ? 0 : 40)
         .opacity(tasksAppeared ? 1 : 0)
+    }
+    
+    // MARK: - Pending Review Card
+    
+    private var pendingReviewCard: some View {
+        VStack(spacing: 0) {
+            // Top accent bar
+            LinearGradient(
+                colors: [Color(hex: "06B6D4"), Color(hex: "8B5CF6")],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 4)
+            .clipShape(RoundedRectangle(cornerRadius: 2))
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color(hex: "06B6D4").opacity(0.15), Color(hex: "8B5CF6").opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 80, height: 80)
+                
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color(hex: "06B6D4").opacity(0.25), Color(hex: "8B5CF6").opacity(0.15)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 60, height: 60)
+                
+                Image(systemName: "hourglass.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color(hex: "06B6D4"), Color(hex: "8B5CF6")],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+            .padding(.top, 24)
+            
+            // Title
+            Text("Değerlendirmeniz Alındı")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundColor(NKColors.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.top, 20)
+            
+            // Divider
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color.clear, Color(hex: "06B6D4").opacity(0.3), Color.clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 1)
+                .padding(.horizontal, 40)
+                .padding(.top, 16)
+            
+            // Description
+            VStack(spacing: 12) {
+                infoRow(
+                    icon: "checkmark.seal.fill",
+                    color: Color(hex: "10B981"),
+                    text: "Anket sonuçlarınız başarıyla kaydedildi."
+                )
+                
+                infoRow(
+                    icon: "stethoscope",
+                    color: Color(hex: "06B6D4"),
+                    text: "Doktorunuz değerlendirmenizi inceliyor."
+                )
+                
+                infoRow(
+                    icon: "bell.badge.fill",
+                    color: Color(hex: "8B5CF6"),
+                    text: "Programınız belirlendiğinde bildirim alacaksınız."
+                )
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 24)
+            
+            // Status badge
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(Color(hex: "F59E0B"))
+                    .frame(width: 8, height: 8)
+                    .overlay(
+                        Circle()
+                            .fill(Color(hex: "F59E0B").opacity(0.4))
+                            .frame(width: 16, height: 16)
+                            .opacity(0.6)
+                    )
+                
+                Text("İnceleme Bekleniyor")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(Color(hex: "F59E0B"))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                Capsule()
+                    .fill(Color(hex: "F59E0B").opacity(0.1))
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(Color(hex: "F59E0B").opacity(0.2), lineWidth: 1)
+                    )
+            )
+            .padding(.top, 24)
+            .padding(.bottom, 24)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color(hex: "1C1C1E").opacity(0.7))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal, 20)
+    }
+    
+    private func infoRow(icon: String, color: Color, text: String) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(color)
+                .frame(width: 28, height: 28)
+            
+            Text(text)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(NKColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            Spacer()
+        }
     }
     
     // MARK: - Helpers
