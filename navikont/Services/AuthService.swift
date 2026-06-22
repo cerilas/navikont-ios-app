@@ -3,6 +3,7 @@ import Combine
 
 class AuthService: ObservableObject {
     @Published var currentUser: User?
+    @Published var currentProfile: PatientProfile?
     @Published var isAuthenticated: Bool = false
     @Published var isTestModeEnabled: Bool = false
     @Published var errorMessage: String?
@@ -18,6 +19,10 @@ class AuthService: ObservableObject {
             if let userData = UserDefaults.standard.data(forKey: "currentUser"),
                let user = try? JSONDecoder().decode(User.self, from: userData) {
                 self.currentUser = user
+            }
+            if let profileData = UserDefaults.standard.data(forKey: "currentProfile"),
+               let profile = try? JSONDecoder().decode(PatientProfile.self, from: profileData) {
+                self.currentProfile = profile
             }
             
             // Send APNs Token if exists
@@ -50,8 +55,12 @@ class AuthService: ObservableObject {
                     if let encodedUser = try? JSONEncoder().encode(response.user) {
                         UserDefaults.standard.set(encodedUser, forKey: "currentUser")
                     }
+                    if let profile = response.profile, let encodedProfile = try? JSONEncoder().encode(profile) {
+                        UserDefaults.standard.set(encodedProfile, forKey: "currentProfile")
+                    }
                     
                     self.currentUser = response.user
+                    self.currentProfile = response.profile
                     self.isAuthenticated = true
                     self.isLoading = false
                 }
@@ -78,7 +87,9 @@ class AuthService: ObservableObject {
         networkManager.clearToken()
         UserDefaults.standard.removeObject(forKey: "authToken")
         UserDefaults.standard.removeObject(forKey: "currentUser")
+        UserDefaults.standard.removeObject(forKey: "currentProfile")
         self.currentUser = nil
+        self.currentProfile = nil
         self.isAuthenticated = false
         self.errorMessage = nil
     }
@@ -123,6 +134,37 @@ class AuthService: ObservableObject {
                 }
             }
         }
+    }
+    
+    struct ProfileUpdateResponse: Decodable {
+        let success: Bool
+        let profile: PatientProfile
+    }
+    
+    func updateProfile(birthDate: String?, gender: String?, heightCm: Double?, weightKg: Double?, bloodType: String?, diseaseIds: [String]?) async throws {
+        let body: [String: Any?] = [
+            "birth_date": birthDate,
+            "gender": gender,
+            "height_cm": heightCm,
+            "weight_kg": weightKg,
+            "blood_type": bloodType,
+            "disease_ids": diseaseIds
+        ]
+        
+        let filteredBody = body.compactMapValues { $0 }
+        
+        let response: ProfileUpdateResponse = try await networkManager.post("/api/patient/profile", body: filteredBody)
+        
+        await MainActor.run {
+            self.currentProfile = response.profile
+            if let encodedProfile = try? JSONEncoder().encode(response.profile) {
+                UserDefaults.standard.set(encodedProfile, forKey: "currentProfile")
+            }
+        }
+    }
+    
+    func fetchDiseases() async throws -> [Disease] {
+        return try await networkManager.get("/api/diseases")
     }
 }
 

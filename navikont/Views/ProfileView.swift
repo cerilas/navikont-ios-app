@@ -81,6 +81,12 @@ struct ProfileView: View {
                         // Settings List
                         VStack(spacing: 20) {
                             ProfileNavigationRow(
+                                icon: "heart.text.square.fill", color: primaryColor,
+                                title: "Sağlık ve Fiziksel Bilgiler", subtitle: "Boy, kilo, kan grubu",
+                                destination: AnyView(HealthProfileView())
+                            )
+                            
+                            ProfileNavigationRow(
                                 icon: "bell.badge.fill", color: .orange,
                                 title: "Bildirimler", subtitle: "Açık",
                                 destination: AnyView(NotificationSettingsView())

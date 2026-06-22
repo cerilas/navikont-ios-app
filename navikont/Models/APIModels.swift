@@ -94,4 +94,32 @@ struct ModuleCompleteResponse: Codable, Sendable {
 struct LoginResponse: Decodable, Sendable {
     let token: String
     let user: User
+    let profile: PatientProfile?
+}
+
+struct PatientProfile: Codable, Sendable {
+    let id: UUID
+    let userId: UUID
+    let birthDate: String?
+    let gender: String?
+    let heightCm: Double?
+    let weightKg: Double?
+    let bloodType: String?
+    let diseaseIds: [String]?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case birthDate = "birth_date"
+        case gender
+        case heightCm = "height_cm"
+        case weightKg = "weight_kg"
+        case bloodType = "blood_type"
+        case diseaseIds = "disease_ids"
+    }
+}
+
+struct Disease: Codable, Identifiable, Sendable {
+    let id: String
+    let name: String
 }
