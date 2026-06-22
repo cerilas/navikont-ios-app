@@ -97,6 +97,11 @@ struct LoginResponse: Decodable, Sendable {
     let profile: PatientProfile?
 }
 
+struct PatientMeResponse: Decodable, Sendable {
+    let user: User
+    let profile: PatientProfile?
+}
+
 struct PatientProfile: Codable, Sendable {
     let id: UUID
     let userId: UUID

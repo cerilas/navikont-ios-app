@@ -166,6 +166,21 @@ class AuthService: ObservableObject {
     func fetchDiseases() async throws -> [Disease] {
         return try await networkManager.get("/api/diseases")
     }
+    
+    func fetchMe() async throws {
+        let response: PatientMeResponse = try await networkManager.get("/api/patient/me")
+        await MainActor.run {
+            self.currentUser = response.user
+            self.currentProfile = response.profile
+            
+            if let encodedUser = try? JSONEncoder().encode(response.user) {
+                UserDefaults.standard.set(encodedUser, forKey: "currentUser")
+            }
+            if let profile = response.profile, let encodedProfile = try? JSONEncoder().encode(profile) {
+                UserDefaults.standard.set(encodedProfile, forKey: "currentProfile")
+            }
+        }
+    }
 }
 
 struct SuccessResponse: Codable {

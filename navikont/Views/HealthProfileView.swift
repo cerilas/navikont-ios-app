@@ -196,8 +196,11 @@ struct HealthProfileView: View {
         .navigationTitle("Sağlık Bilgileri")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            loadCurrentProfile()
             Task {
+                try? await authService.fetchMe()
+                await MainActor.run {
+                    loadCurrentProfile()
+                }
                 try? await loadDiseases()
             }
         }
