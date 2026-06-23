@@ -6,6 +6,7 @@ struct SelectedDateItem: Identifiable {
 }
 
 struct JourneyCalendarView: View {
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: DashboardViewModel
     @Environment(\.presentationMode) var presentationMode
     
@@ -47,7 +48,7 @@ struct JourneyCalendarView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgGradient.edgesIgnoringSafeArea(.all)
+            NKColors.bgGradient(colorScheme).edgesIgnoringSafeArea(.all)
             
             if viewModel.calendarResponse == nil {
                 ProgressView()
@@ -59,11 +60,11 @@ struct JourneyCalendarView: View {
                         VStack(spacing: 8) {
                             Text("Program Takvimi")
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
-                                .foregroundColor(NKColors.textPrimary)
+                                .foregroundColor(NKColors.textPrimary(colorScheme))
                             
                             Text("Programa katılımınızdan itibaren ilerlemeniz")
                                 .font(.system(size: 15))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.top, 20)
@@ -103,7 +104,7 @@ struct JourneyCalendarView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(title.capitalized)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .padding(.horizontal, 20)
             
             VStack(spacing: 8) {
@@ -113,7 +114,7 @@ struct JourneyCalendarView: View {
                     ForEach(weekdays, id: \.self) { day in
                         Text(day)
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .frame(maxWidth: .infinity)
                     }
                 }
@@ -144,7 +145,7 @@ struct JourneyCalendarView: View {
                 }
             }
             .padding(20)
-            .background(NKColors.bgCard)
+            .background(NKColors.bgCard(colorScheme))
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -182,7 +183,7 @@ struct JourneyCalendarView: View {
             ZStack(alignment: .top) {
                 // Background shadow pill for status
                 Capsule()
-                    .fill(NKColors.bgCardLight)
+                    .fill(NKColors.bgCardLight(colorScheme))
                     .frame(width: 38, height: 16)
                     .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
                 
@@ -207,7 +208,7 @@ struct JourneyCalendarView: View {
                     
                     Text("\(day.dayNumber).G")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
                 .offset(y: 2)
             }
@@ -232,7 +233,7 @@ struct JourneyCalendarView: View {
                 .frame(width: 10, height: 10)
             Text(text)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
         }
     }
     
@@ -265,13 +266,13 @@ struct JourneyCalendarView: View {
     private func textColor(for status: CalendarDay.DayStatus) -> Color {
         switch status {
         case .completed:
-            return NKColors.textPrimary
+            return NKColors.textPrimary(colorScheme)
         case .missed:
-            return NKColors.textPrimary
+            return NKColors.textPrimary(colorScheme)
         case .current:
             return NKColors.accentTeal
         case .future:
-            return NKColors.textTertiary
+            return NKColors.textTertiary(colorScheme)
         }
     }
 }

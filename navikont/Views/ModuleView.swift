@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ModuleView: View {
+    @Environment(\.colorScheme) var colorScheme
     let task: JourneyStep
     @ObservedObject var viewModel: DashboardViewModel
     var onComplete: (() -> Void)? = nil
@@ -38,7 +39,7 @@ struct ModuleView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                NKColors.bgPrimary.ignoresSafeArea()
+                NKColors.bgPrimary(colorScheme).ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -59,14 +60,14 @@ struct ModuleView: View {
                 if showSuccess { successOverlay }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(NKColors.bgPrimary, for: .navigationBar)
+            .toolbarBackground(NKColors.bgPrimary(colorScheme), for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                     }
                 }
             }
@@ -119,7 +120,7 @@ struct ModuleView: View {
                                     Button(action: { isPdfFullScreen = false }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.system(size: 22))
-                                            .foregroundColor(NKColors.textSecondary)
+                                            .foregroundColor(NKColors.textSecondary(colorScheme))
                                     }
                                 }
                             }
@@ -231,11 +232,11 @@ struct ModuleView: View {
                 Text("Tahmini okuma süresi: 3 dk")
                     .font(.system(size: 13, weight: .medium))
             }
-            .foregroundColor(NKColors.textTertiary)
+            .foregroundColor(NKColors.textTertiary(colorScheme))
 
             Text(contentText.htmlToAttributedString())
                 .font(.system(size: 16, weight: .regular))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .lineSpacing(6)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -251,7 +252,7 @@ struct ModuleView: View {
                 // Fallback / Placeholder
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(NKColors.bgCard)
+                        .fill(NKColors.bgCard(colorScheme))
                         .frame(height: 200)
 
                     ZStack {
@@ -272,7 +273,7 @@ struct ModuleView: View {
 
             Text(contentText.htmlToAttributedString())
                 .font(.system(size: 16))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .lineSpacing(6)
         }
     }
@@ -283,7 +284,7 @@ struct ModuleView: View {
         VStack(spacing: 20) {
             Text(contentText.htmlToAttributedString())
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .lineSpacing(4)
 
             VStack(spacing: 16) {
@@ -293,7 +294,7 @@ struct ModuleView: View {
 
                 Text("Anketi doldurmak için aşağıdaki butona tıklayın")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
                     .multilineTextAlignment(.center)
 
                 Button(action: {
@@ -325,7 +326,7 @@ struct ModuleView: View {
         VStack(spacing: 20) {
             Text(contentText.htmlToAttributedString())
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .lineSpacing(4)
 
             VStack(spacing: 16) {
@@ -335,7 +336,7 @@ struct ModuleView: View {
 
                 Text("Günlük durumunuzu kaydetmek için aşağıdaki butona tıklayın")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
                     .multilineTextAlignment(.center)
 
                 Button(action: {
@@ -368,7 +369,7 @@ struct ModuleView: View {
             // Exercise illustration placeholder
             ZStack {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(NKColors.bgCard)
+                    .fill(NKColors.bgCard(colorScheme))
                     .frame(height: 180)
 
                 VStack(spacing: 12) {
@@ -378,13 +379,13 @@ struct ModuleView: View {
 
                     Text("Egzersizi başlatmak için hazır olun")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
             }
 
             Text(contentText.htmlToAttributedString())
                 .font(.system(size: 16))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .lineSpacing(6)
         }
     }
@@ -407,22 +408,22 @@ struct ModuleView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "info.circle.fill")
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                     Text("TALİMATLAR")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
 
                 Text(contentText.htmlToAttributedString())
                     .font(.system(size: 15))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                     .lineSpacing(6)
                     .multilineTextAlignment(.leading)
             }
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(NKColors.bgCard)
+                    .fill(NKColors.bgCard(colorScheme))
                     .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
             )
         }
@@ -497,12 +498,12 @@ struct ModuleView: View {
                 let plain = html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
                 Text(plain)
                     .font(.system(size: 15))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                     .lineSpacing(5)
             } else {
                 Text(contentText.htmlToAttributedString())
                     .font(.system(size: 15))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                     .lineSpacing(5)
             }
         }
@@ -547,7 +548,7 @@ struct ModuleView: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Lütfen aşağıdaki ölçümleri giriniz:")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 
             if let raw = task.module.content?.textValue,
                let data = raw.data(using: .utf8),
@@ -590,7 +591,7 @@ struct ModuleView: View {
     private var genericContent: some View {
         Text(contentText.htmlToAttributedString())
             .font(.system(size: 16))
-            .foregroundColor(NKColors.textPrimary)
+            .foregroundColor(NKColors.textPrimary(colorScheme))
             .lineSpacing(6)
     }
 
@@ -599,7 +600,7 @@ struct ModuleView: View {
     private var bottomAction: some View {
         VStack(spacing: 0) {
             LinearGradient(
-                colors: [NKColors.bgPrimary.opacity(0), NKColors.bgPrimary],
+                colors: [NKColors.bgPrimary(colorScheme).opacity(0), NKColors.bgPrimary(colorScheme)],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -636,7 +637,7 @@ struct ModuleView: View {
             .disabled(task.isCompleted || isSubmitting)
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
-            .background(NKColors.bgPrimary)
+            .background(NKColors.bgPrimary(colorScheme))
         }
     }
 
@@ -700,7 +701,7 @@ struct ModuleView: View {
                 }) {
                     Text("Devam Et")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color(hex: "0F0F23"))
+                        .foregroundColor(NKColors.bgPrimary(colorScheme))
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
@@ -714,7 +715,7 @@ struct ModuleView: View {
             .padding(32)
             .background(
                 RoundedRectangle(cornerRadius: 36, style: .continuous)
-                    .fill(Color(hex: "1C1C1E").opacity(0.7))
+                    .fill(NKColors.bgCard(colorScheme).opacity(0.7))
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
@@ -834,6 +835,7 @@ struct ModuleView: View {
 // MARK: - Breathing Animation
 
 struct BreathingCircle: View {
+    @Environment(\.colorScheme) var colorScheme
     var inhaleDuration: Double
     var holdDuration: Double
     var exhaleDuration: Double
@@ -1017,6 +1019,7 @@ struct BreathingCircle: View {
 // MARK: - Interactive Timer View
 
 struct InteractiveTimerView: View {
+    @Environment(\.colorScheme) var colorScheme
     let duration: Int
     let label: String
     let startText: String
@@ -1041,7 +1044,7 @@ struct InteractiveTimerView: View {
         VStack(spacing: 24) {
             Text(label)
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 .multilineTextAlignment(.center)
 
             ZStack {
@@ -1154,6 +1157,7 @@ enum RiskStatus {
 }
 
 struct RiskAlertContentView: View {
+    @Environment(\.colorScheme) var colorScheme
     let alertMessage: String
     let safeMessage: String
     let missingMessage: String
@@ -1182,7 +1186,7 @@ struct RiskAlertContentView: View {
                 case .missing:
                     cardView(
                         icon: "lock.doc.fill",
-                        color: NKColors.textSecondary,
+                        color: NKColors.textSecondary(colorScheme),
                         title: "Veri Bekleniyor",
                         message: missingMessage,
                         showButton: true
@@ -1214,11 +1218,11 @@ struct RiskAlertContentView: View {
             VStack(spacing: 12) {
                 Text(title)
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                 
                 Text(message)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
                     .multilineTextAlignment(.center)
                     .lineSpacing(6)
             }
@@ -1243,7 +1247,7 @@ struct RiskAlertContentView: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color(hex: "1C1C1E").opacity(0.6))
+                .fill(NKColors.bgCard(colorScheme).opacity(0.6))
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)

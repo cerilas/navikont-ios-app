@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PrivacyPolicyView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     
     // UI Helpers
@@ -8,7 +9,7 @@ struct PrivacyPolicyView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -16,11 +17,11 @@ struct PrivacyPolicyView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Gizlilik Politikası ve KVKK Aydınlatma Metni")
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(NKColors.textPrimary)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                         
                         Text("Son Güncelleme: \(formattedDate())")
                             .font(.system(size: 13))
-                            .foregroundColor(NKColors.textTertiary)
+                            .foregroundColor(NKColors.textTertiary(colorScheme))
                     }
                     
                     policySection(title: "1. Veri Sorumlusunun Kimliği", content: """
@@ -50,29 +51,29 @@ struct PrivacyPolicyView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("İletişim Bilgileri")
                             .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(NKColors.textPrimary)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Şirket:")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary) +
+                                .foregroundColor(NKColors.textSecondary(colorScheme)) +
                             Text(" CERİLAS Yüksek Teknoloji Sanayi ve Ticaret AŞ")
                                 .font(.system(size: 14))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             Text("VKN:")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary) +
+                                .foregroundColor(NKColors.textSecondary(colorScheme)) +
                             Text(" 2061561435")
                                 .font(.system(size: 14))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             Text("E-posta:")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary) +
+                                .foregroundColor(NKColors.textSecondary(colorScheme)) +
                             Text(" deniz@cerilas.com")
                                 .font(.system(size: 14))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -96,11 +97,11 @@ struct PrivacyPolicyView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
             
             Text(content)
                 .font(.system(size: 14))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 .lineSpacing(4)
         }
     }

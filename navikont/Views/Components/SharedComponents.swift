@@ -3,15 +3,16 @@ import SwiftUI
 // MARK: - Animated Gradient Background
 
 struct AnimatedMeshBackground: View {
+    @Environment(\.colorScheme) var colorScheme
     @State private var animateGradient = false
     
     var body: some View {
         LinearGradient(
             colors: [
-                Color(hex: "0F0F23"),
-                Color(hex: "1A1A3E"),
-                Color(hex: "15152F"),
-                Color(hex: "0F0F23")
+                NKColors.bgPrimary(colorScheme),
+                NKColors.bgSecondary(colorScheme),
+                colorScheme == .dark ? Color(hex: "15152F") : Color(hex: "E5E7EB"),
+                NKColors.bgPrimary(colorScheme)
             ],
             startPoint: animateGradient ? .topLeading : .bottomLeading,
             endPoint: animateGradient ? .bottomTrailing : .topTrailing
@@ -75,6 +76,7 @@ struct CircularProgressView: View {
     let size: CGFloat
     let gradient: LinearGradient
     
+    @Environment(\.colorScheme) var colorScheme
     @State private var animatedProgress: Double = 0
     
     init(progress: Double, lineWidth: CGFloat = 6, size: CGFloat = 60, gradient: LinearGradient = NKColors.tealGradient) {
@@ -87,7 +89,7 @@ struct CircularProgressView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.white.opacity(0.08), lineWidth: lineWidth)
+                .stroke(NKColors.glassBorder(colorScheme), lineWidth: lineWidth)
             
             Circle()
                 .trim(from: 0, to: animatedProgress)
@@ -96,7 +98,7 @@ struct CircularProgressView: View {
             
             Text("\(Int(animatedProgress * 100))%")
                 .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
         }
         .frame(width: size, height: size)
         .onAppear {
@@ -141,6 +143,7 @@ struct AnimatedCounter: View {
     let icon: String
     let color: Color
     
+    @Environment(\.colorScheme) var colorScheme
     @State private var displayValue: Int = 0
     
     var body: some View {
@@ -151,12 +154,12 @@ struct AnimatedCounter: View {
             
             Text("\(displayValue)")
                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .contentTransition(.numericText())
             
             Text(label)
                 .font(.caption)
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
         }
         .frame(maxWidth: .infinity)
         .onAppear {

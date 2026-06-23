@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HealthProfileView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var authService: AuthService
     
@@ -24,7 +25,7 @@ struct HealthProfileView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -36,11 +37,11 @@ struct HealthProfileView: View {
                         
                         Text("Sağlık ve Fiziksel Bilgiler")
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(NKColors.textPrimary)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                         
                         Text("Size daha iyi hizmet verebilmemiz için fiziksel özelliklerinizi güncel tutun.")
                             .font(.system(size: 15))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }
@@ -52,14 +53,14 @@ struct HealthProfileView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Doğum Tarihi")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             DatePicker("", selection: $birthDate, displayedComponents: .date)
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
-                                .background(NKColors.bgSecondary)
+                                .background(NKColors.bgSecondary(colorScheme))
                                 .cornerRadius(12)
                         }
                         
@@ -67,7 +68,7 @@ struct HealthProfileView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Cinsiyet")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             Picker("Cinsiyet", selection: $gender) {
                                 ForEach(genders, id: \.self) {
@@ -77,7 +78,7 @@ struct HealthProfileView: View {
                             .pickerStyle(.menu)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
-                            .background(NKColors.bgSecondary)
+                            .background(NKColors.bgSecondary(colorScheme))
                             .cornerRadius(12)
                         }
                         
@@ -86,24 +87,24 @@ struct HealthProfileView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Boy (cm)")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(NKColors.textSecondary)
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
                                 TextField("175", text: $heightCm)
                                     .keyboardType(.decimalPad)
                                     .padding()
-                                    .background(NKColors.bgSecondary)
+                                    .background(NKColors.bgSecondary(colorScheme))
                                     .cornerRadius(12)
                             }
                             
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Kilo (kg)")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(NKColors.textSecondary)
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
                                 TextField("70.5", text: $weightKg)
                                     .keyboardType(.decimalPad)
                                     .padding()
-                                    .background(NKColors.bgSecondary)
+                                    .background(NKColors.bgSecondary(colorScheme))
                                     .cornerRadius(12)
                             }
                         }
@@ -112,7 +113,7 @@ struct HealthProfileView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Kan Grubu")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             Picker("Kan Grubu", selection: $bloodType) {
                                 ForEach(bloodTypes, id: \.self) {
@@ -122,7 +123,7 @@ struct HealthProfileView: View {
                             .pickerStyle(.menu)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
-                            .background(NKColors.bgSecondary)
+                            .background(NKColors.bgSecondary(colorScheme))
                             .cornerRadius(12)
                         }
                         
@@ -131,7 +132,7 @@ struct HealthProfileView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Sahip Olunan Hastalıklar")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(NKColors.textSecondary)
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
                                 VStack(spacing: 12) {
                                     ForEach(allDiseases) { disease in
@@ -144,18 +145,18 @@ struct HealthProfileView: View {
                                         }) {
                                             HStack {
                                                 Text(disease.name)
-                                                    .foregroundColor(NKColors.textPrimary)
+                                                    .foregroundColor(NKColors.textPrimary(colorScheme))
                                                 Spacer()
                                                 if selectedDiseaseIds.contains(disease.id) {
                                                     Image(systemName: "checkmark.circle.fill")
                                                         .foregroundColor(primaryColor)
                                                 } else {
                                                     Image(systemName: "circle")
-                                                        .foregroundColor(NKColors.textTertiary)
+                                                        .foregroundColor(NKColors.textTertiary(colorScheme))
                                                 }
                                             }
                                             .padding()
-                                            .background(NKColors.bgSecondary)
+                                            .background(NKColors.bgSecondary(colorScheme))
                                             .cornerRadius(12)
                                         }
                                     }

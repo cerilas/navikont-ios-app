@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CalendarDayDetailsPopup: View {
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: DashboardViewModel
     let dateString: String
     
@@ -24,13 +25,13 @@ struct CalendarDayDetailsPopup: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.edgesIgnoringSafeArea(.all)
+            NKColors.bgPrimary(colorScheme).edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 20) {
                 if let date = dateFormatter.date(from: dateString) {
                     Text(displayFormatter.string(from: date))
                         .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(NKColors.textPrimary)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                         .padding(.top, 24)
                 }
                 
@@ -48,23 +49,23 @@ struct CalendarDayDetailsPopup: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 Text("Programın \(details.targetDayNumber). Günü")
                                     .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(NKColors.textSecondary)
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
                                 let status = getTargetDayStatus(details: details)
                                 
                                 HStack(spacing: 16) {
                                     Image(systemName: status.isCompleted ? "checkmark.circle.fill" : (details.scheduledTasks.isEmpty ? "minus.circle.fill" : "xmark.circle.fill"))
-                                        .foregroundColor(status.isCompleted ? NKColors.success : (details.scheduledTasks.isEmpty ? NKColors.textTertiary : NKColors.danger))
+                                        .foregroundColor(status.isCompleted ? NKColors.success : (details.scheduledTasks.isEmpty ? NKColors.textTertiary(colorScheme) : NKColors.danger))
                                         .font(.system(size: 32))
                                     
                                     VStack(alignment: .leading, spacing: 4) {
                                         if details.scheduledTasks.isEmpty {
                                             Text("Görev Yok")
                                                 .font(.system(size: 16, weight: .bold))
-                                                .foregroundColor(NKColors.textPrimary)
+                                                .foregroundColor(NKColors.textPrimary(colorScheme))
                                             Text("Bu güne atanmış bir görev bulunmuyor.")
                                                 .font(.system(size: 14))
-                                                .foregroundColor(NKColors.textSecondary)
+                                                .foregroundColor(NKColors.textSecondary(colorScheme))
                                         } else {
                                             Text(status.isCompleted ? "Tamamlandı" : "Eksik / Yapılmadı")
                                                 .font(.system(size: 16, weight: .bold))
@@ -73,14 +74,14 @@ struct CalendarDayDetailsPopup: View {
                                             if status.isCompleted, let dateStr = status.completedDateStr {
                                                 Text("\(dateStr) tarihinde çözüldü")
                                                     .font(.system(size: 14))
-                                                    .foregroundColor(NKColors.textSecondary)
+                                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                                             }
                                         }
                                     }
                                 }
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(NKColors.bgCardLight)
+                                .background(NKColors.bgCardLight(colorScheme))
                                 .cornerRadius(16)
                             }
                             
@@ -100,11 +101,11 @@ struct CalendarDayDetailsPopup: View {
                                             
                                             Text("Programın \(dayNum). Günü görevleri çözüldü")
                                                 .font(.system(size: 15, weight: .medium))
-                                                .foregroundColor(NKColors.textPrimary)
+                                                .foregroundColor(NKColors.textPrimary(colorScheme))
                                         }
                                         .padding()
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(NKColors.bgCardLight)
+                                        .background(NKColors.bgCardLight(colorScheme))
                                         .cornerRadius(16)
                                     }
                                 }

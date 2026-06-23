@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 struct QuestionnaireView: View {
+    @Environment(\.colorScheme) var colorScheme
     let questionnaireVersionId: UUID
     let moduleTitle: String
     let onComplete: () -> Void
@@ -11,7 +12,7 @@ struct QuestionnaireView: View {
 
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
 
             if viewModel.isLoading {
                 loadingView
@@ -47,7 +48,7 @@ struct QuestionnaireView: View {
                 .scaleEffect(1.5)
             Text("Anket yükleniyor...")
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
         }
     }
 
@@ -60,7 +61,7 @@ struct QuestionnaireView: View {
                 .foregroundColor(NKColors.warning)
             Text(message)
                 .font(.system(size: 15))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 .multilineTextAlignment(.center)
             Button("Tekrar Dene") {
                 Task { await viewModel.load(versionId: questionnaireVersionId) }
@@ -80,14 +81,14 @@ struct QuestionnaireView: View {
                 Button(action: { dismiss() }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(0.08)))
                 }
                 Spacer()
                 Text("\(viewModel.currentPage + 1)/\(questionnaire.questions?.count ?? 1)")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
@@ -135,7 +136,7 @@ struct QuestionnaireView: View {
                             Text("Geri")
                         }
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
                         .background(
@@ -224,7 +225,7 @@ struct QuestionnaireView: View {
             .padding(32)
             .background(
                 RoundedRectangle(cornerRadius: 36, style: .continuous)
-                    .fill(Color(hex: "1C1C1E").opacity(0.7))
+                    .fill(NKColors.bgCard(colorScheme).opacity(0.7))
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
@@ -243,6 +244,7 @@ struct QuestionnaireView: View {
 // MARK: - Question Card
 
 struct QuestionCard: View {
+    @Environment(\.colorScheme) var colorScheme
     let question: Question
     let answer: String
     let onAnswer: (String) -> Void
@@ -259,7 +261,7 @@ struct QuestionCard: View {
                 }
                 Text(question.label)
                     .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -306,7 +308,7 @@ struct QuestionCard: View {
                         }
                         Text(option.label)
                             .font(.system(size: 15, weight: answer == optionVal ? .semibold : .regular))
-                            .foregroundColor(answer == optionVal ? NKColors.textPrimary : NKColors.textSecondary)
+                            .foregroundColor(answer == optionVal ? NKColors.textPrimary(colorScheme) : NKColors.textSecondary(colorScheme))
                         Spacer()
                     }
                     .padding(.horizontal, 16)
@@ -338,7 +340,7 @@ struct QuestionCard: View {
                     Button(action: { onAnswer("\(i)") }) {
                         Text("\(i)")
                             .font(.system(size: 13, weight: answer == "\(i)" ? .bold : .regular))
-                            .foregroundColor(answer == "\(i)" ? .white : NKColors.textSecondary)
+                            .foregroundColor(answer == "\(i)" ? .white : NKColors.textSecondary(colorScheme))
                             .frame(minWidth: 28, minHeight: 28)
                             .background(
                                 Circle()
@@ -351,11 +353,11 @@ struct QuestionCard: View {
             HStack {
                 Text("Hiç etkilemiyor")
                     .font(.system(size: 11))
-                    .foregroundColor(NKColors.textTertiary)
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
                 Spacer()
                 Text("Çok etkiliyor")
                     .font(.system(size: 11))
-                    .foregroundColor(NKColors.textTertiary)
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
             }
         }
     }
@@ -375,9 +377,9 @@ struct QuestionCard: View {
                 get: { answer },
                 set: { onAnswer($0) }
             ), prompt: Text(question.placeholder ?? "Cevabınızı yazın...")
-                .foregroundColor(NKColors.textTertiary)
+                .foregroundColor(NKColors.textTertiary(colorScheme))
             )
-            .foregroundColor(NKColors.textPrimary)
+            .foregroundColor(NKColors.textPrimary(colorScheme))
             .padding(14)
         }
     }
@@ -390,8 +392,8 @@ struct QuestionCard: View {
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.1), lineWidth: 1))
                 .frame(height: 50)
             TextField("", text: Binding(get: { answer }, set: { onAnswer($0) }),
-                      prompt: Text("0").foregroundColor(NKColors.textTertiary))
-                .foregroundColor(NKColors.textPrimary)
+                      prompt: Text("0").foregroundColor(NKColors.textTertiary(colorScheme)))
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .keyboardType(.numberPad)
                 .padding(14)
         }
@@ -404,7 +406,7 @@ struct QuestionCard: View {
                 Button(action: { onAnswer(option == "Evet" ? "true" : "false") }) {
                     Text(option)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(answer == (option == "Evet" ? "true" : "false") ? .white : NKColors.textSecondary)
+                        .foregroundColor(answer == (option == "Evet" ? "true" : "false") ? .white : NKColors.textSecondary(colorScheme))
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
                         .background(

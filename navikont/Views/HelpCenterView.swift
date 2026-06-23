@@ -7,6 +7,7 @@ struct FAQItem: Identifiable {
 }
 
 struct HelpCenterView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     
     // 10 Common Questions & Answers
@@ -47,7 +48,7 @@ struct HelpCenterView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -67,11 +68,11 @@ struct HelpCenterView: View {
                         
                         Text("Size Nasıl Yardımcı Olabiliriz?")
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(NKColors.textPrimary)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                         
                         Text("Sıkça Sorulan Sorular (SSS)")
                             .font(.system(size: 14))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                     }
                     .padding(.top, 20)
                     .padding(.bottom, 10)
@@ -88,7 +89,7 @@ struct HelpCenterView: View {
                     VStack(spacing: 12) {
                         Text("Aradığınız cevabı bulamadınız mı?")
                             .font(.system(size: 14))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                         
                         Button(action: {
                             // Support mail link
@@ -119,6 +120,7 @@ struct HelpCenterView: View {
 }
 
 struct FAQRow: View {
+    @Environment(\.colorScheme) var colorScheme
     let faq: FAQItem
     @State private var isExpanded: Bool = false
     
@@ -132,12 +134,12 @@ struct FAQRow: View {
                 HStack(alignment: .top, spacing: 16) {
                     Text(faq.question)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(NKColors.textPrimary)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Image(systemName: "chevron.down")
-                        .foregroundColor(NKColors.textTertiary)
+                        .foregroundColor(NKColors.textTertiary(colorScheme))
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 .padding(16)
@@ -148,7 +150,7 @@ struct FAQRow: View {
             if isExpanded {
                 Text(faq.answer)
                     .font(.system(size: 14))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
                     .lineSpacing(4)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)

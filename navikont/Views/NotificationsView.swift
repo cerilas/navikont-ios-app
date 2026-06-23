@@ -67,6 +67,7 @@ class NotificationsViewModel: ObservableObject {
 }
 
 struct NotificationsView: View {
+    @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = NotificationsViewModel()
     @Environment(\.dismiss) var dismiss
     
@@ -80,7 +81,7 @@ struct NotificationsView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 if viewModel.isLoading && viewModel.notifications.isEmpty {
@@ -97,7 +98,7 @@ struct NotificationsView: View {
                             .foregroundColor(.red)
                         Text(error)
                             .font(.system(size: 15))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                         
@@ -113,10 +114,10 @@ struct NotificationsView: View {
                     VStack(spacing: 16) {
                         Image(systemName: "bell.slash.fill")
                             .font(.system(size: 50))
-                            .foregroundColor(NKColors.textTertiary.opacity(0.5))
+                            .foregroundColor(NKColors.textTertiary(colorScheme).opacity(0.5))
                         Text("Henüz hiç bildiriminiz yok.")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                     }
                     Spacer()
                 } else {
@@ -156,6 +157,7 @@ struct NotificationsView: View {
 }
 
 struct NotificationRow: View {
+    @Environment(\.colorScheme) var colorScheme
     let notification: AppNotification
     
     private var isUnread: Bool {
@@ -170,7 +172,7 @@ struct NotificationRow: View {
                 .frame(width: 40, height: 40)
                 .overlay(
                     Image(systemName: isUnread ? "bell.badge.fill" : "bell.fill")
-                        .foregroundColor(isUnread ? Color(hex: "06B6D4") : NKColors.textTertiary)
+                        .foregroundColor(isUnread ? Color(hex: "06B6D4") : NKColors.textTertiary(colorScheme))
                         .font(.system(size: 16))
                 )
             
@@ -179,19 +181,19 @@ struct NotificationRow: View {
                 HStack(alignment: .top) {
                     Text(notification.title)
                         .font(.system(size: 16, weight: isUnread ? .bold : .semibold))
-                        .foregroundColor(isUnread ? NKColors.textPrimary : NKColors.textSecondary)
+                        .foregroundColor(isUnread ? NKColors.textPrimary(colorScheme) : NKColors.textSecondary(colorScheme))
                         .lineLimit(2)
                     
                     Spacer()
                     
                     Text(timeAgo(from: notification.createdAt))
                         .font(.system(size: 12))
-                        .foregroundColor(NKColors.textTertiary)
+                        .foregroundColor(NKColors.textTertiary(colorScheme))
                 }
                 
                 Text(notification.body)
                     .font(.system(size: 14))
-                    .foregroundColor(isUnread ? NKColors.textSecondary : NKColors.textTertiary)
+                    .foregroundColor(isUnread ? NKColors.textSecondary(colorScheme) : NKColors.textTertiary(colorScheme))
                     .lineLimit(3)
                     .lineSpacing(2)
             }
@@ -214,13 +216,14 @@ struct NotificationRow: View {
 }
 
 struct NotificationDetailView: View {
+    @Environment(\.colorScheme) var colorScheme
     let notification: AppNotification
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationView {
             ZStack {
-                NKColors.bgPrimary.ignoresSafeArea()
+                NKColors.bgPrimary(colorScheme).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
@@ -239,11 +242,11 @@ struct NotificationDetailView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(notification.title)
                                     .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(NKColors.textPrimary)
+                                    .foregroundColor(NKColors.textPrimary(colorScheme))
                                 
                                 Text(formattedDate(notification.createdAt))
                                     .font(.system(size: 13))
-                                    .foregroundColor(NKColors.textTertiary)
+                                    .foregroundColor(NKColors.textTertiary(colorScheme))
                             }
                             .padding(.leading, 8)
                         }
@@ -254,7 +257,7 @@ struct NotificationDetailView: View {
                         // Body
                         Text(notification.body)
                             .font(.system(size: 16))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .lineSpacing(6)
                             
                         Spacer()

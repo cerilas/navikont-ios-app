@@ -3,6 +3,7 @@ import AVKit
 import WebKit
 
 struct VideoPlayerView: View {
+    @Environment(\.colorScheme) var colorScheme
     let urlString: String
     
     var body: some View {

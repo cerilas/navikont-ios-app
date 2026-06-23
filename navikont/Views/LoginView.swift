@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
     
     @State private var email = ""
@@ -49,11 +50,11 @@ struct LoginView: View {
                         VStack(spacing: 6) {
                             Text("NaviKont")
                                 .font(.system(size: 34, weight: .bold, design: .rounded))
-                                .foregroundColor(NKColors.textPrimary)
+                                .foregroundColor(NKColors.textPrimary(colorScheme))
                             
                             Text("Dijital Sağlık Asistanınız")
                                 .font(.system(size: 15, weight: .medium))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                         }
                         .opacity(logoOpacity)
                     }
@@ -65,15 +66,15 @@ struct LoginView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("E-posta", systemImage: "envelope.fill")
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             HStack(spacing: 12) {
                                 Image(systemName: "person.fill")
                                     .font(.system(size: 16))
-                                    .foregroundColor(NKColors.textTertiary)
+                                    .foregroundColor(NKColors.textTertiary(colorScheme))
                                 
-                                TextField("", text: $email, prompt: Text("ornek@navikont.com").foregroundColor(NKColors.textTertiary))
-                                    .foregroundColor(NKColors.textPrimary)
+                                TextField("", text: $email, prompt: Text("ornek@navikont.com").foregroundColor(NKColors.textTertiary(colorScheme)))
+                                    .foregroundColor(NKColors.textPrimary(colorScheme))
                                     .autocapitalization(.none)
                                     .keyboardType(.emailAddress)
                                     .textContentType(.emailAddress)
@@ -94,15 +95,15 @@ struct LoginView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Şifre", systemImage: "lock.fill")
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(NKColors.textSecondary)
+                                .foregroundColor(NKColors.textSecondary(colorScheme))
                             
                             HStack(spacing: 12) {
                                 Image(systemName: "lock.fill")
                                     .font(.system(size: 16))
-                                    .foregroundColor(NKColors.textTertiary)
+                                    .foregroundColor(NKColors.textTertiary(colorScheme))
                                 
-                                SecureField("", text: $password, prompt: Text("••••••••").foregroundColor(NKColors.textTertiary))
-                                    .foregroundColor(NKColors.textPrimary)
+                                SecureField("", text: $password, prompt: Text("••••••••").foregroundColor(NKColors.textTertiary(colorScheme)))
+                                    .foregroundColor(NKColors.textPrimary(colorScheme))
                                     .textContentType(.password)
                             }
                             .padding(.horizontal, 16)
@@ -191,7 +192,7 @@ struct LoginView: View {
                     VStack(spacing: 6) {
                         Text("DiGA Sertifikalı Sağlık Uygulaması")
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(NKColors.textTertiary)
+                            .foregroundColor(NKColors.textTertiary(colorScheme))
                         
                         HStack(spacing: 4) {
                             Image(systemName: "lock.shield.fill")
@@ -199,7 +200,7 @@ struct LoginView: View {
                             Text("Verileriniz KVKK kapsamında korunmaktadır")
                                 .font(.system(size: 10))
                         }
-                        .foregroundColor(NKColors.textTertiary.opacity(0.7))
+                        .foregroundColor(NKColors.textTertiary(colorScheme).opacity(0.7))
                     }
                     .opacity(formOpacity)
                     .padding(.bottom, 30)

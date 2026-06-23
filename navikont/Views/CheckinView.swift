@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 struct CheckinView: View {
+    @Environment(\.colorScheme) var colorScheme
     let checkinTemplateId: String
     let moduleTitle: String
     let onComplete: () -> Void
@@ -11,7 +12,7 @@ struct CheckinView: View {
 
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
 
             if viewModel.isLoading {
                 loadingView
@@ -39,7 +40,7 @@ struct CheckinView: View {
                 .scaleEffect(1.5)
             Text("Check-in formu yükleniyor...")
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
         }
     }
 
@@ -52,7 +53,7 @@ struct CheckinView: View {
                 .foregroundColor(NKColors.warning)
             Text(message)
                 .font(.system(size: 15))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 .multilineTextAlignment(.center)
             Button("Tekrar Dene") {
                 Task { await viewModel.load(templateId: checkinTemplateId) }
@@ -72,7 +73,7 @@ struct CheckinView: View {
                 Button(action: { dismiss() }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(0.08)))
                 }
@@ -87,10 +88,10 @@ struct CheckinView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(moduleTitle)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                 Text("Bugünkü durumunuzu kaydedin")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
@@ -113,7 +114,7 @@ struct CheckinView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Bugün kendinizi nasıl hissediyorsunuz?")
                                 .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(NKColors.textPrimary)
+                                .foregroundColor(NKColors.textPrimary(colorScheme))
 
                             HStack(spacing: 10) {
                                 ForEach(["😔", "😐", "🙂", "😊", "😄"], id: \.self) { emoji in
@@ -230,7 +231,7 @@ struct CheckinView: View {
                 }) {
                     Text("Devam Et")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color(hex: "0F0F23"))
+                        .foregroundColor(NKColors.bgPrimary(colorScheme))
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
@@ -244,7 +245,7 @@ struct CheckinView: View {
             .padding(32)
             .background(
                 RoundedRectangle(cornerRadius: 36, style: .continuous)
-                    .fill(Color(hex: "1C1C1E").opacity(0.7))
+                    .fill(NKColors.bgCard(colorScheme).opacity(0.7))
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
@@ -263,6 +264,7 @@ struct CheckinView: View {
 // MARK: - CheckinFieldCard
 
 struct CheckinFieldCard: View {
+    @Environment(\.colorScheme) var colorScheme
     let field: CheckinField
     let value: String
     let onValue: (String) -> Void
@@ -271,7 +273,7 @@ struct CheckinFieldCard: View {
         VStack(alignment: .leading, spacing: 14) {
             Text(field.label)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
 
             switch field.fieldType {
             case "emoji":
@@ -329,7 +331,7 @@ struct CheckinFieldCard: View {
                     Button(action: { onValue("\(i)") }) {
                         Text("\(i)")
                             .font(.system(size: 12, weight: value == "\(i)" ? .bold : .regular))
-                            .foregroundColor(value == "\(i)" ? .white : NKColors.textSecondary)
+                            .foregroundColor(value == "\(i)" ? .white : NKColors.textSecondary(colorScheme))
                             .frame(minWidth: 26, minHeight: 26)
                             .background(Circle().fill(value == "\(i)" ? NKColors.accentTeal : Color.white.opacity(0.08)))
                     }
@@ -344,7 +346,7 @@ struct CheckinFieldCard: View {
                 Button(action: { onValue(option == "Evet" ? "true" : "false") }) {
                     Text(option)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(value == (option == "Evet" ? "true" : "false") ? .white : NKColors.textSecondary)
+                        .foregroundColor(value == (option == "Evet" ? "true" : "false") ? .white : NKColors.textSecondary(colorScheme))
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(
@@ -364,7 +366,7 @@ struct CheckinFieldCard: View {
                     HStack {
                         Text(option.label)
                             .font(.system(size: 14, weight: value == optionVal ? .semibold : .regular))
-                            .foregroundColor(value == optionVal ? NKColors.textPrimary : NKColors.textSecondary)
+                            .foregroundColor(value == optionVal ? NKColors.textPrimary(colorScheme) : NKColors.textSecondary(colorScheme))
                         Spacer()
                         if value == optionVal {
                             Image(systemName: "checkmark.circle.fill")
@@ -385,8 +387,8 @@ struct CheckinFieldCard: View {
     private var numberView: some View {
         HStack {
             TextField("", text: Binding(get: { value }, set: { onValue($0) }),
-                      prompt: Text("0").foregroundColor(NKColors.textTertiary))
-                .foregroundColor(NKColors.textPrimary)
+                      prompt: Text("0").foregroundColor(NKColors.textTertiary(colorScheme)))
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .keyboardType(.decimalPad)
                 .padding(14)
         }
@@ -399,8 +401,8 @@ struct CheckinFieldCard: View {
 
     private var textView: some View {
         TextField("", text: Binding(get: { value }, set: { onValue($0) }),
-                  prompt: Text(field.placeholder ?? "Cevabınızı yazın...").foregroundColor(NKColors.textTertiary))
-            .foregroundColor(NKColors.textPrimary)
+                  prompt: Text(field.placeholder ?? "Cevabınızı yazın...").foregroundColor(NKColors.textTertiary(colorScheme)))
+            .foregroundColor(NKColors.textPrimary(colorScheme))
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 10)

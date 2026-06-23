@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ChangePasswordView: View {
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
     @Environment(\.dismiss) var dismiss
     
@@ -22,7 +23,7 @@ struct ChangePasswordView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -42,11 +43,11 @@ struct ChangePasswordView: View {
                         
                         Text("Güvenlik Ayarları")
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(NKColors.textPrimary)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                         
                         Text("Hesap güvenliğiniz için şifrenizi güçlü ve benzersiz tutun.")
                             .font(.system(size: 14))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 32)
                     }
@@ -173,6 +174,7 @@ struct ChangePasswordView: View {
 }
 
 struct SecureFieldRow: View {
+    @Environment(\.colorScheme) var colorScheme
     let icon: String
     let placeholder: String
     @Binding var text: String
@@ -180,11 +182,11 @@ struct SecureFieldRow: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
-                .foregroundColor(NKColors.textTertiary)
+                .foregroundColor(NKColors.textTertiary(colorScheme))
                 .frame(width: 20)
             
             SecureField(placeholder, text: $text)
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .font(.system(size: 16))
                 .autocapitalization(.none)
                 .disableAutocorrection(true)

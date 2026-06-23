@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct NotificationSettingsView: View {
+    @Environment(\.colorScheme) var colorScheme
     // Save settings locally using AppStorage
     @AppStorage("notif_daily_reminders") private var dailyReminders: Bool = true
     @AppStorage("notif_email_alerts") private var emailAlerts: Bool = false
@@ -9,7 +10,7 @@ struct NotificationSettingsView: View {
     
     var body: some View {
         ZStack {
-            NKColors.bgPrimary.ignoresSafeArea()
+            NKColors.bgPrimary(colorScheme).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -17,7 +18,7 @@ struct NotificationSettingsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Uygulama Bildirimleri")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .padding(.leading, 16)
                             .textCase(.uppercase)
                         
@@ -67,7 +68,7 @@ struct NotificationSettingsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Diğer Bildirimler")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(NKColors.textSecondary)
+                            .foregroundColor(NKColors.textSecondary(colorScheme))
                             .padding(.leading, 16)
                             .textCase(.uppercase)
                         
@@ -92,7 +93,7 @@ struct NotificationSettingsView: View {
                     
                     Text("Bu ayarlar telefonunuzun yerleşik hafızasında güvenle saklanmaktadır.")
                         .font(.system(size: 13))
-                        .foregroundColor(NKColors.textTertiary)
+                        .foregroundColor(NKColors.textTertiary(colorScheme))
                         .multilineTextAlignment(.center)
                         .padding(.top, 16)
                         .padding(.horizontal, 32)
@@ -106,6 +107,7 @@ struct NotificationSettingsView: View {
 }
 
 struct NotificationToggleRow: View {
+    @Environment(\.colorScheme) var colorScheme
     let icon: String
     let color: Color
     let title: String
@@ -127,10 +129,10 @@ struct NotificationToggleRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
                 Text(subtitle)
                     .font(.system(size: 12))
-                    .foregroundColor(NKColors.textTertiary)
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
             }
             
             Spacer()

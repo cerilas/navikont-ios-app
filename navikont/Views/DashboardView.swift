@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
     @StateObject private var viewModel = DashboardViewModel()
     
@@ -24,7 +25,7 @@ struct DashboardView: View {
                 NavigationView {
                     ZStack {
                 // Background
-                NKColors.bgPrimary.ignoresSafeArea()
+                NKColors.bgPrimary(colorScheme).ignoresSafeArea()
                 
                 
                 ScrollView(showsIndicators: false) {
@@ -95,7 +96,7 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(greetingText)
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(NKColors.textSecondary)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
                     .onTapGesture(count: 5) {
                         if authService.isTestModeEnabled {
                             authService.isTestModeEnabled = false
@@ -107,7 +108,7 @@ struct DashboardView: View {
                 
                 Text(authService.currentUser?.firstName ?? "Hasta")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(NKColors.textPrimary)
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
             }
             
             Spacer()
@@ -122,7 +123,7 @@ struct DashboardView: View {
                             .overlay(
                                 Image(systemName: "bell.fill")
                                     .font(.system(size: 18))
-                                    .foregroundColor(NKColors.textSecondary)
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                             )
                         
                         // We could bind this to an unread count from the view model, 
@@ -220,7 +221,7 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("NaviKont Programı")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(NKColors.textPrimary)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     
                     Text("Gün \(enrollment.currentDay) • Aktif")
                         .font(.system(size: 14, weight: .medium))
@@ -266,11 +267,11 @@ struct DashboardView: View {
         VStack(spacing: 16) {
             Image(systemName: "wifi.exclamationmark")
                 .font(.system(size: 40))
-                .foregroundColor(NKColors.textTertiary)
+                .foregroundColor(NKColors.textTertiary(colorScheme))
             
             Text(message)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 .multilineTextAlignment(.center)
             
             Button(action: {
@@ -307,13 +308,13 @@ struct DashboardView: View {
                 HStack {
                     Text("Bugünkü Görevler")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(NKColors.textPrimary)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     
                     Spacer()
                     
                     Text("\(completedCount)/\(viewModel.todayTasks.count)")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(NKColors.textSecondary)
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
                 .padding(.horizontal, 20)
                 
@@ -405,7 +406,7 @@ struct DashboardView: View {
             // Title
             Text("Değerlendirmeniz Alındı")
                 .font(.system(size: 22, weight: .bold, design: .rounded))
-                .foregroundColor(NKColors.textPrimary)
+                .foregroundColor(NKColors.textPrimary(colorScheme))
                 .multilineTextAlignment(.center)
                 .padding(.top, 20)
             
@@ -476,7 +477,7 @@ struct DashboardView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(hex: "1C1C1E").opacity(0.7))
+                .fill(NKColors.bgCard(colorScheme).opacity(0.7))
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -495,7 +496,7 @@ struct DashboardView: View {
             
             Text(text)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(NKColors.textSecondary)
+                .foregroundColor(NKColors.textSecondary(colorScheme))
                 .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
@@ -534,6 +535,7 @@ struct DashboardView: View {
 // MARK: - Task Card
 
 struct TaskCard: View {
+    @Environment(\.colorScheme) var colorScheme
     let task: JourneyStep
     let index: Int
     
@@ -567,7 +569,7 @@ struct TaskCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.module.title)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(task.isCompleted ? NKColors.textSecondary : NKColors.textPrimary)
+                    .foregroundColor(task.isCompleted ? NKColors.textSecondary(colorScheme) : NKColors.textPrimary(colorScheme))
                     .lineLimit(1)
                 
                 HStack(spacing: 6) {
@@ -577,7 +579,7 @@ struct TaskCard: View {
                     
                     if task.module.required {
                         Text("•")
-                            .foregroundColor(NKColors.textTertiary)
+                            .foregroundColor(NKColors.textTertiary(colorScheme))
                         Text("Zorunlu")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(NKColors.accentRose)
@@ -594,7 +596,7 @@ struct TaskCard: View {
             } else {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(NKColors.textTertiary)
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
             }
         }
         .padding(16)
@@ -653,6 +655,7 @@ struct ScrollOffsetKey: PreferenceKey {
 }
 
 struct ModernRefreshIndicator: View {
+    @Environment(\.colorScheme) var colorScheme
     let offset: CGFloat
     let isRefreshing: Bool
     
@@ -669,7 +672,7 @@ struct ModernRefreshIndicator: View {
             
             // Background circle
             Circle()
-                .fill(NKColors.bgPrimary)
+                .fill(NKColors.bgPrimary(colorScheme))
                 .frame(width: 36, height: 36)
                 .shadow(color: NKColors.accentTeal.opacity(0.3), radius: isRefreshing ? 8 : 2, x: 0, y: 2)
             
@@ -712,6 +715,7 @@ struct ModernRefreshIndicator: View {
 }
 
 struct StatusBlockedView: View {
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
     let status: String
     
