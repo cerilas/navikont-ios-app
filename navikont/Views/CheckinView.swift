@@ -75,7 +75,7 @@ struct CheckinView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.08)))
+                        .background(Circle().fill(NKColors.glassBackground(colorScheme)))
                 }
                 Spacer()
                 StreakBadge(count: viewModel.currentStreak)
@@ -249,11 +249,11 @@ struct CheckinView: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                     )
             )
             .padding(.horizontal, 32)
-            .shadow(color: Color.black.opacity(0.4), radius: 40, y: 20)
+            .shadow(color: NKColors.cardShadow(colorScheme), radius: 40, y: 20)
             .transition(.scale(scale: 0.92).combined(with: .opacity))
         }
         .transition(.opacity)
@@ -394,8 +394,8 @@ struct CheckinFieldCard: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.06))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.1), lineWidth: 1))
+                .fill(NKColors.glassBackground(colorScheme))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(NKColors.glassBorder(colorScheme), lineWidth: 1))
         )
     }
 
@@ -406,8 +406,8 @@ struct CheckinFieldCard: View {
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white.opacity(0.06))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.1), lineWidth: 1))
+                    .fill(NKColors.glassBackground(colorScheme))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(NKColors.glassBorder(colorScheme), lineWidth: 1))
             )
     }
 }

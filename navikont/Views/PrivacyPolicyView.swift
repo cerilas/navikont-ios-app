@@ -77,11 +77,11 @@ struct PrivacyPolicyView: View {
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.04))
+                        .background(NKColors.glassBackground(colorScheme))
                         .cornerRadius(12)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                         )
                     }
                     

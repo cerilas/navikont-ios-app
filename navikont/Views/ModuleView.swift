@@ -145,7 +145,7 @@ struct ModuleView: View {
                         ZStack {
                             ForEach(0..<6, id: \.self) { i in
                                 Circle()
-                                    .fill(Color.white.opacity(0.06))
+                                    .fill(NKColors.glassBackground(colorScheme))
                                     .frame(width: CGFloat.random(in: 40...120))
                                     .offset(
                                         x: CGFloat.random(in: -50...geometry.size.width),
@@ -171,7 +171,7 @@ struct ModuleView: View {
                 .padding(.vertical, 6)
                 .background(
                     Capsule()
-                        .fill(Color.white.opacity(0.2))
+                        .fill(NKColors.glassBackground(colorScheme))
                 )
 
                 Text(task.module.title)
@@ -257,11 +257,11 @@ struct ModuleView: View {
 
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(0.15))
+                            .fill(NKColors.glassBackground(colorScheme))
                             .frame(width: 70, height: 70)
 
                         Circle()
-                            .fill(Color.white.opacity(0.3))
+                            .fill(NKColors.glassBackground(colorScheme))
                             .frame(width: 56, height: 56)
 
                         Image(systemName: "video.slash")
@@ -424,7 +424,7 @@ struct ModuleView: View {
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(NKColors.bgCard(colorScheme))
-                    .shadow(color: Color.black.opacity(0.04), radius: 10, y: 5)
+                    .shadow(color: NKColors.cardShadow(colorScheme), radius: 10, y: 5)
             )
         }
         .padding(.vertical, 16)
@@ -574,7 +574,7 @@ struct ModuleView: View {
                             ))
                             .keyboardType(metric.type == "integer" ? .numberPad : .decimalPad)
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background(NKColors.glassBackground(colorScheme))
                             .cornerRadius(12)
                             .foregroundColor(.white)
                         }
@@ -719,11 +719,11 @@ struct ModuleView: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                     )
             )
             .padding(.horizontal, 32)
-            .shadow(color: Color.black.opacity(0.4), radius: 40, y: 20)
+            .shadow(color: NKColors.cardShadow(colorScheme), radius: 40, y: 20)
             .transition(.scale(scale: 0.92).combined(with: .opacity))
         }
         .transition(.opacity)
@@ -875,7 +875,7 @@ struct BreathingCircle: View {
 
                 // Progress Ring Background (Brighter & On Top of blur)
                 Circle()
-                    .stroke(Color.white.opacity(0.15), lineWidth: 8)
+                    .stroke(NKColors.glassBorder(colorScheme), lineWidth: 8)
                     .frame(width: 230, height: 230)
 
                 // Progress Ring Active
@@ -1251,10 +1251,10 @@ struct RiskAlertContentView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                 )
         )
-        .shadow(color: Color.black.opacity(0.2), radius: 20, y: 10)
+        .shadow(color: NKColors.cardShadow(colorScheme), radius: 20, y: 10)
     }
 }
 

@@ -32,7 +32,7 @@ struct NotificationSettingsView: View {
                             )
                             
                             Divider()
-                                .background(Color.white.opacity(0.1))
+                                .background(NKColors.glassBackground(colorScheme))
                                 .padding(.leading, 60)
                             
                             NotificationToggleRow(
@@ -44,7 +44,7 @@ struct NotificationSettingsView: View {
                             )
                             
                             Divider()
-                                .background(Color.white.opacity(0.1))
+                                .background(NKColors.glassBackground(colorScheme))
                                 .padding(.leading, 60)
                             
                             NotificationToggleRow(
@@ -57,11 +57,11 @@ struct NotificationSettingsView: View {
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white.opacity(0.04))
+                                .fill(NKColors.glassBackground(colorScheme))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                         )
                     }
                     
@@ -83,11 +83,11 @@ struct NotificationSettingsView: View {
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white.opacity(0.04))
+                                .fill(NKColors.glassBackground(colorScheme))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                         )
                     }
                     

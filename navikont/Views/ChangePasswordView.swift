@@ -80,11 +80,11 @@ struct ChangePasswordView: View {
                     .padding(20)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white.opacity(0.04))
+                            .fill(NKColors.glassBackground(colorScheme))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                     )
                     
                     // Error Message
@@ -192,7 +192,7 @@ struct SecureFieldRow: View {
                 .disableAutocorrection(true)
         }
         .padding(16)
-        .background(Color.white.opacity(0.05))
+        .background(NKColors.glassBackground(colorScheme))
         .cornerRadius(12)
     }
 }

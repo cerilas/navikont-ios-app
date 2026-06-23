@@ -252,7 +252,7 @@ struct NotificationDetailView: View {
                         }
                         
                         Divider()
-                            .background(Color.white.opacity(0.1))
+                            .background(NKColors.glassBackground(colorScheme))
                         
                         // Body
                         Text(notification.body)

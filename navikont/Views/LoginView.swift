@@ -83,10 +83,10 @@ struct LoginView: View {
                             .padding(.vertical, 14)
                             .background(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color.white.opacity(0.06))
+                                    .fill(NKColors.glassBackground(colorScheme))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 14)
-                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                                     )
                             )
                         }
@@ -110,10 +110,10 @@ struct LoginView: View {
                             .padding(.vertical, 14)
                             .background(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color.white.opacity(0.06))
+                                    .fill(NKColors.glassBackground(colorScheme))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 14)
-                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                                     )
                             )
                         }

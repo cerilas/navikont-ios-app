@@ -47,7 +47,7 @@ struct ProfileView: View {
                                     
                                     if isUploadingImage {
                                         ZStack {
-                                            Circle().fill(Color.black.opacity(0.5))
+                                            Circle().fill(NKColors.cardShadow(colorScheme))
                                             ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white))
                                         }
                                         .frame(width: 90, height: 90)

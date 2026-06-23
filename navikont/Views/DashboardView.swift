@@ -118,7 +118,7 @@ struct DashboardView: View {
                 NavigationLink(destination: NotificationsView()) {
                     ZStack(alignment: .topTrailing) {
                         Circle()
-                            .fill(Color.white.opacity(0.08))
+                            .fill(NKColors.glassBackground(colorScheme))
                             .frame(width: 44, height: 44)
                             .overlay(
                                 Image(systemName: "bell.fill")
@@ -178,7 +178,7 @@ struct DashboardView: View {
             )
             
             Rectangle()
-                .fill(Color.white.opacity(0.08))
+                .fill(NKColors.glassBackground(colorScheme))
                 .frame(width: 1, height: 50)
             
             AnimatedCounter(
@@ -189,7 +189,7 @@ struct DashboardView: View {
             )
             
             Rectangle()
-                .fill(Color.white.opacity(0.08))
+                .fill(NKColors.glassBackground(colorScheme))
                 .frame(width: 1, height: 50)
             
             AnimatedCounter(
@@ -255,7 +255,7 @@ struct DashboardView: View {
         VStack(spacing: 16) {
             ForEach(0..<3, id: \.self) { _ in
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.06))
+                    .fill(NKColors.glassBackground(colorScheme))
                     .frame(height: 80)
                     .shimmer()
             }
@@ -481,7 +481,7 @@ struct DashboardView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                        .strokeBorder(NKColors.glassBorder(colorScheme), lineWidth: 1)
                 )
         )
         .padding(.horizontal, 20)
@@ -774,11 +774,11 @@ struct StatusBlockedView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(NKColors.glassBackground(colorScheme))
                         .cornerRadius(12)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                         )
                 }
                 .padding(.horizontal, 30)

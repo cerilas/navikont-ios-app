@@ -143,7 +143,7 @@ struct FAQRow: View {
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 .padding(16)
-                .background(Color.white.opacity(0.04))
+                .background(NKColors.glassBackground(colorScheme))
             }
             .buttonStyle(.plain)
             
@@ -156,14 +156,14 @@ struct FAQRow: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
-                    .background(Color.white.opacity(0.04))
+                    .background(NKColors.glassBackground(colorScheme))
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
         )
     }
 }

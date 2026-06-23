@@ -34,7 +34,7 @@ struct NKColors {
         scheme == .dark ? Color(hex: "1E1E42") : Color.white
     }
     static func bgCardLight(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color(hex: "2A2A5E") : Color(hex: "F0F0F6")
+        scheme == .dark ? Color(hex: "2A2A5E") : Color.white
     }
     
     // Text
@@ -50,13 +50,13 @@ struct NKColors {
     
     // Glass/overlay
     static func glassBackground(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.03)
+        scheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.04)
     }
     static func glassBorder(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.06)
+        scheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.12)
     }
     static func cardShadow(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.clear : Color.black.opacity(0.06)
+        scheme == .dark ? Color.clear : Color.black.opacity(0.08)
     }
 
     // ── Legacy static accessors (dark mode defaults, for backward compat) ──

@@ -83,7 +83,7 @@ struct QuestionnaireView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.08)))
+                        .background(Circle().fill(NKColors.glassBackground(colorScheme)))
                 }
                 Spacer()
                 Text("\(viewModel.currentPage + 1)/\(questionnaire.questions?.count ?? 1)")
@@ -97,7 +97,7 @@ struct QuestionnaireView: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white.opacity(0.08))
+                        .fill(NKColors.glassBackground(colorScheme))
                         .frame(height: 4)
                     RoundedRectangle(cornerRadius: 4)
                         .fill(NKColors.primaryGradient)
@@ -141,7 +141,7 @@ struct QuestionnaireView: View {
                         .frame(height: 52)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.white.opacity(0.08))
+                                .fill(NKColors.glassBackground(colorScheme))
                         )
                     }
                 }
@@ -229,11 +229,11 @@ struct QuestionnaireView: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                     )
             )
             .padding(.horizontal, 32)
-            .shadow(color: Color.black.opacity(0.4), radius: 40, y: 20)
+            .shadow(color: NKColors.cardShadow(colorScheme), radius: 40, y: 20)
             .transition(.scale(scale: 0.92).combined(with: .opacity))
         }
         .transition(.opacity)
@@ -366,10 +366,10 @@ struct QuestionCard: View {
     private func textInputView(multiline: Bool) -> some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.06))
+                .fill(NKColors.glassBackground(colorScheme))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                 )
                 .frame(minHeight: multiline ? 100 : 50)
 
@@ -388,8 +388,8 @@ struct QuestionCard: View {
     private var numberInputView: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.06))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.1), lineWidth: 1))
+                .fill(NKColors.glassBackground(colorScheme))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(NKColors.glassBorder(colorScheme), lineWidth: 1))
                 .frame(height: 50)
             TextField("", text: Binding(get: { answer }, set: { onAnswer($0) }),
                       prompt: Text("0").foregroundColor(NKColors.textTertiary(colorScheme)))

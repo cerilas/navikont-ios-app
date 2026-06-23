@@ -149,9 +149,9 @@ struct JourneyCalendarView: View {
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                    .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 4)
+            .shadow(color: NKColors.cardShadow(colorScheme), radius: 10, x: 0, y: 4)
             .padding(.horizontal, 20)
         }
     }
@@ -185,7 +185,7 @@ struct JourneyCalendarView: View {
                 Capsule()
                     .fill(NKColors.bgCardLight(colorScheme))
                     .frame(width: 38, height: 16)
-                    .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                    .shadow(color: NKColors.cardShadow(colorScheme), radius: 2, x: 0, y: 1)
                 
                 HStack(spacing: 2) {
                     if day.status == .completed {
@@ -202,7 +202,7 @@ struct JourneyCalendarView: View {
                             .frame(width: 6, height: 6)
                     } else {
                         Circle()
-                            .fill(Color.white.opacity(0.1))
+                            .fill(NKColors.glassBackground(colorScheme))
                             .frame(width: 6, height: 6)
                     }
                     
