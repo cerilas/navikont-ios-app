@@ -685,11 +685,11 @@ struct ModuleView: View {
                 VStack(spacing: 12) {
                     Text("Tebrikler!")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     
                     Text("Bu modülü başarıyla tamamladınız.")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                         .multilineTextAlignment(.center)
                 }
                 
@@ -701,13 +701,13 @@ struct ModuleView: View {
                 }) {
                     Text("Devam Et")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(NKColors.bgPrimary(colorScheme))
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
                             Capsule()
-                                .fill(Color.white)
-                                .shadow(color: .white.opacity(0.2), radius: 10, y: 5)
+                                .fill(LinearGradient(colors: [Color(hex: "34D399"), Color(hex: "059669")], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .shadow(color: Color(hex: "34D399").opacity(0.4), radius: 10, y: 5)
                         )
                 }
                 .padding(.bottom, 8)
@@ -715,8 +715,7 @@ struct ModuleView: View {
             .padding(32)
             .background(
                 RoundedRectangle(cornerRadius: 36, style: .continuous)
-                    .fill(NKColors.bgCard(colorScheme).opacity(0.7))
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 36, style: .continuous))
+                    .fill(NKColors.bgCard(colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 36, style: .continuous)
                             .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
