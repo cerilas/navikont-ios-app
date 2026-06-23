@@ -21,6 +21,5 @@ struct ContentView: View {
             }
         }
         .animation(.spring(response: 0.6, dampingFraction: 0.85), value: authService.isAuthenticated)
-        .preferredColorScheme(.dark)
     }
 }

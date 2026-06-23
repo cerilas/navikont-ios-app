@@ -1,36 +1,75 @@
 import SwiftUI
 
-// MARK: - NaviKont Design System
+// MARK: - NaviKont Design System (Adaptive)
 
 struct NKColors {
-    // Primary palette
+    // These are resolved dynamically based on the current colorScheme
+    // To keep backward compat, they default to dark if no env is available.
+    
+    // Primary palette (same in both modes)
     static let primaryGradientStart = Color(hex: "667EEA")
     static let primaryGradientEnd = Color(hex: "764BA2")
     
-    // Accent palette
+    // Accent palette (same in both modes)
     static let accentTeal = Color(hex: "2DD4BF")
     static let accentCyan = Color(hex: "22D3EE")
     static let accentAmber = Color(hex: "FBBF24")
     static let accentRose = Color(hex: "FB7185")
     
-    // Semantic
+    // Semantic (same in both modes)
     static let success = Color(hex: "34D399")
     static let warning = Color(hex: "FBBF24")
     static let danger = Color(hex: "F87171")
     static let info = Color(hex: "60A5FA")
     
+    // ── Adaptive Colors ──
     // Background
+    static func bgPrimary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "0F0F23") : Color(hex: "F5F6FA")
+    }
+    static func bgSecondary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "1A1A3E") : Color(hex: "ECEDF3")
+    }
+    static func bgCard(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "1E1E42") : Color.white
+    }
+    static func bgCardLight(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "2A2A5E") : Color(hex: "F0F0F6")
+    }
+    
+    // Text
+    static func textPrimary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white : Color(hex: "1A1A2E")
+    }
+    static func textSecondary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "A0A0C0") : Color(hex: "6B7280")
+    }
+    static func textTertiary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "6B6B8D") : Color(hex: "9CA3AF")
+    }
+    
+    // Glass/overlay
+    static func glassBackground(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.03)
+    }
+    static func glassBorder(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.06)
+    }
+    static func cardShadow(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.clear : Color.black.opacity(0.06)
+    }
+
+    // ── Legacy static accessors (dark mode defaults, for backward compat) ──
     static let bgPrimary = Color(hex: "0F0F23")
     static let bgSecondary = Color(hex: "1A1A3E")
     static let bgCard = Color(hex: "1E1E42")
     static let bgCardLight = Color(hex: "2A2A5E")
     
-    // Text
     static let textPrimary = Color.white
     static let textSecondary = Color(hex: "A0A0C0")
     static let textTertiary = Color(hex: "6B6B8D")
     
-    // Gradients
+    // Gradients (same in both modes)
     static let primaryGradient = LinearGradient(
         colors: [primaryGradientStart, primaryGradientEnd],
         startPoint: .topLeading,
@@ -55,11 +94,29 @@ struct NKColors {
         endPoint: .bottomTrailing
     )
     
+    static func bgGradient(_ scheme: ColorScheme) -> LinearGradient {
+        LinearGradient(
+            colors: [bgPrimary(scheme), bgSecondary(scheme)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
     static let bgGradient = LinearGradient(
         colors: [bgPrimary, bgSecondary],
         startPoint: .top,
         endPoint: .bottom
     )
+    
+    static func glassGradient(_ scheme: ColorScheme) -> LinearGradient {
+        scheme == .dark
+            ? LinearGradient(
+                colors: [Color.white.opacity(0.12), Color.white.opacity(0.04)],
+                startPoint: .topLeading, endPoint: .bottomTrailing)
+            : LinearGradient(
+                colors: [Color.black.opacity(0.02), Color.black.opacity(0.01)],
+                startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
     
     static let glassGradient = LinearGradient(
         colors: [
@@ -75,16 +132,18 @@ struct NKColors {
 
 struct GlassCard: ViewModifier {
     var cornerRadius: CGFloat = 20
+    @Environment(\.colorScheme) var colorScheme
     
     func body(content: Content) -> some View {
         content
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(NKColors.glassGradient)
+                    .fill(NKColors.glassGradient(colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
                     )
+                    .shadow(color: NKColors.cardShadow(colorScheme), radius: 8, x: 0, y: 2)
             )
     }
 }
@@ -256,15 +315,16 @@ struct ModuleTypeUI {
 
 struct ShimmerEffect: ViewModifier {
     @State private var phase: CGFloat = 0
+    @Environment(\.colorScheme) var colorScheme
     
     func body(content: Content) -> some View {
         content
             .overlay(
                 LinearGradient(
                     colors: [
-                        Color.white.opacity(0),
-                        Color.white.opacity(0.1),
-                        Color.white.opacity(0)
+                        (colorScheme == .dark ? Color.white : Color.black).opacity(0),
+                        (colorScheme == .dark ? Color.white : Color.black).opacity(0.1),
+                        (colorScheme == .dark ? Color.white : Color.black).opacity(0)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing

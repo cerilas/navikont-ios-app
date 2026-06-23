@@ -3,7 +3,9 @@ import PhotosUI
 
 struct ProfileView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var selectedItem: PhotosPickerItem?
@@ -15,7 +17,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                NKColors.bgPrimary.ignoresSafeArea()
+                NKColors.bgPrimary(colorScheme).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 32) {
@@ -69,14 +71,60 @@ struct ProfileView: View {
                             VStack(spacing: 4) {
                                 Text(authService.currentUser?.fullName ?? "Misafir Hasta")
                                     .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(NKColors.textPrimary)
+                                    .foregroundColor(NKColors.textPrimary(colorScheme))
                                 
                                 Text(authService.currentUser?.email ?? "email@example.com")
                                     .font(.system(size: 15))
-                                    .foregroundColor(NKColors.textSecondary)
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
                             }
                         }
                         .padding(.top, 20)
+                        
+                        // Theme Picker Section
+                        VStack(spacing: 12) {
+                            HStack {
+                                Image(systemName: "paintbrush.fill")
+                                    .foregroundColor(primaryColor)
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text("Görünüm")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
+                                Spacer()
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            HStack(spacing: 8) {
+                                ForEach(ThemeMode.allCases, id: \.self) { mode in
+                                    Button(action: {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            themeManager.currentMode = mode
+                                        }
+                                    }) {
+                                        VStack(spacing: 8) {
+                                            Image(systemName: mode.icon)
+                                                .font(.system(size: 20, weight: .semibold))
+                                                .foregroundColor(themeManager.currentMode == mode ? .white : NKColors.textSecondary(colorScheme))
+                                            Text(mode.displayName)
+                                                .font(.system(size: 12, weight: .semibold))
+                                                .foregroundColor(themeManager.currentMode == mode ? .white : NKColors.textSecondary(colorScheme))
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .fill(themeManager.currentMode == mode
+                                                    ? AnyShapeStyle(LinearGradient(colors: [Color(hex: "06B6D4"), Color(hex: "3B82F6")], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                    : AnyShapeStyle(NKColors.glassBackground(colorScheme)))
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(themeManager.currentMode == mode ? Color.clear : NKColors.glassBorder(colorScheme), lineWidth: 1)
+                                        )
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
                         
                         // Settings List
                         VStack(spacing: 20) {
@@ -138,7 +186,7 @@ struct ProfileView: View {
                         
                         Text("NaviKont v1.0.0")
                             .font(.system(size: 13))
-                            .foregroundColor(NKColors.textTertiary)
+                            .foregroundColor(NKColors.textTertiary(colorScheme))
                             .padding(.bottom, 20)
                     }
                 }
@@ -150,7 +198,7 @@ struct ProfileView: View {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundColor(NKColors.textTertiary)
+                            .foregroundColor(NKColors.textTertiary(colorScheme))
                     }
                 }
             }
@@ -220,6 +268,7 @@ struct ProfileMenuRow: View {
     let title: String
     let subtitle: String
     let action: () -> Void
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         Button(action: action) {
@@ -237,26 +286,26 @@ struct ProfileMenuRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(NKColors.textPrimary)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     Text(subtitle)
                         .font(.system(size: 13))
-                        .foregroundColor(NKColors.textTertiary)
+                        .foregroundColor(NKColors.textTertiary(colorScheme))
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(NKColors.textTertiary)
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.04)) // Glass effect baseline
+                    .fill(NKColors.glassBackground(colorScheme))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
             )
         }
     }
@@ -268,6 +317,7 @@ struct ProfileNavigationRow: View {
     let title: String
     let subtitle: String
     let destination: AnyView
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationLink(destination: destination) {
@@ -285,26 +335,26 @@ struct ProfileNavigationRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(NKColors.textPrimary)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     Text(subtitle)
                         .font(.system(size: 13))
-                        .foregroundColor(NKColors.textTertiary)
+                        .foregroundColor(NKColors.textTertiary(colorScheme))
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(NKColors.textTertiary)
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.04))
+                    .fill(NKColors.glassBackground(colorScheme))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

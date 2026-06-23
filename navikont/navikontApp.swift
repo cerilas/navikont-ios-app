@@ -62,6 +62,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 struct navikontApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authService = AuthService()
+    @StateObject private var themeManager = ThemeManager.shared
     
     init() {
         // Yenileme animasyonunun (spinner) rengini temanın ana rengi yapıyoruz
@@ -72,6 +73,8 @@ struct navikontApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authService)
+                .environmentObject(themeManager)
+                .preferredColorScheme(themeManager.currentMode.colorScheme)
         }
     }
 }
