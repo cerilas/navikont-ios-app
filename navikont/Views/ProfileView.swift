@@ -203,6 +203,7 @@ struct ProfileView: View {
                 }
             }
         }
+        .preferredColorScheme(themeManager.currentMode.colorScheme)
         .alert(isPresented: $showingAlert) {
             Alert(title: Text("Bilgi"), message: Text(alertMessage), dismissButton: .default(Text("Tamam")))
         }
