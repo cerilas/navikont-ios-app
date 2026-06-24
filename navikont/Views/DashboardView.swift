@@ -126,11 +126,11 @@ struct DashboardView: View {
                                     .foregroundColor(NKColors.textSecondary(colorScheme))
                             )
                         
-                        // We could bind this to an unread count from the view model, 
-                        // but for now we leave the red dot as a constant pulse dot 
-                        // or link it to a state. I'll just keep the pulse dot as is.
-                        PulseDot(color: NKColors.accentRose)
-                            .offset(x: -2, y: 2)
+                        // Show red dot only if there are unread notifications
+                        if viewModel.unreadNotifications > 0 {
+                            PulseDot(color: NKColors.accentRose)
+                                .offset(x: -2, y: 2)
+                        }
                     }
                 }
                 

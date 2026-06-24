@@ -8,9 +8,11 @@ struct DashboardResponse: Decodable, Sendable {
     let today: TodayPayload?
     let progress: ProgressPayload?
     let streak: StreakPayload?
+    let unreadNotificationCount: Int?
 
     var streakCount: Int { streak?.currentStreak ?? 0 }
     var todayTasks: [JourneyStep]? { today?.tasks }
+    var unreadNotifications: Int { unreadNotificationCount ?? 0 }
 
     var mappedEnrollment: Enrollment {
         Enrollment(

@@ -11,6 +11,7 @@ class DashboardViewModel: ObservableObject {
     
     @Published var selectedDayDetails: CalendarDayDetailsResponse?
     @Published var isDayDetailsLoading: Bool = false
+    @Published var unreadNotifications: Int = 0
 
     var allRequiredTasksCompleted: Bool {
         let requiredTasks = todayTasks.filter { $0.required }
@@ -47,6 +48,7 @@ class DashboardViewModel: ObservableObject {
                 self.activeEnrollment = response.mappedEnrollment
                 self.todayTasks = response.todayTasks ?? []
                 self.streakCount = response.streakCount
+                self.unreadNotifications = response.unreadNotifications
                 self.isLoading = false
             }
         } catch let error as NetworkError {
