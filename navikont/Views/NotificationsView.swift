@@ -168,7 +168,7 @@ struct NotificationRow: View {
         HStack(alignment: .top, spacing: 16) {
             // Icon
             Circle()
-                .fill(isUnread ? Color(hex: "06B6D4").opacity(0.2) : Color.white.opacity(0.05))
+                .fill(isUnread ? Color(hex: "06B6D4").opacity(0.2) : NKColors.glassBackground(colorScheme))
                 .frame(width: 40, height: 40)
                 .overlay(
                     Image(systemName: isUnread ? "bell.badge.fill" : "bell.fill")
@@ -199,11 +199,11 @@ struct NotificationRow: View {
             }
         }
         .padding(16)
-        .background(isUnread ? Color(hex: "06B6D4").opacity(0.05) : Color.white.opacity(0.02))
+        .background(isUnread ? Color(hex: "06B6D4").opacity(0.05) : NKColors.glassBackground(colorScheme))
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isUnread ? Color(hex: "06B6D4").opacity(0.3) : Color.white.opacity(0.05), lineWidth: 1)
+                .stroke(isUnread ? Color(hex: "06B6D4").opacity(0.3) : NKColors.glassBorder(colorScheme), lineWidth: 1)
         )
     }
     

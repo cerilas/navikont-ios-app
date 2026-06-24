@@ -297,7 +297,7 @@ struct QuestionCard: View {
                     HStack(spacing: 14) {
                         ZStack {
                             Circle()
-                                .stroke(answer == optionVal ? NKColors.primaryGradientStart : Color.white.opacity(0.2), lineWidth: 2)
+                                .stroke(answer == optionVal ? NKColors.primaryGradientStart : NKColors.glassBorder(colorScheme), lineWidth: 2)
                                 .frame(width: 24, height: 24)
                             if answer == optionVal {
                                 Circle()
@@ -315,10 +315,10 @@ struct QuestionCard: View {
                     .padding(.vertical, 14)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(answer == optionVal ? NKColors.primaryGradientStart.opacity(0.12) : Color.white.opacity(0.04))
+                            .fill(answer == optionVal ? NKColors.primaryGradientStart.opacity(0.12) : NKColors.glassBackground(colorScheme))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(answer == optionVal ? NKColors.primaryGradientStart.opacity(0.4) : Color.white.opacity(0.08), lineWidth: 1)
+                                    .stroke(answer == optionVal ? NKColors.primaryGradientStart.opacity(0.4) : NKColors.glassBorder(colorScheme), lineWidth: 1)
                             )
                     )
                 }
@@ -344,7 +344,7 @@ struct QuestionCard: View {
                             .frame(minWidth: 28, minHeight: 28)
                             .background(
                                 Circle()
-                                    .fill(answer == "\(i)" ? NKColors.primaryGradientStart : Color.white.opacity(0.08))
+                                    .fill(answer == "\(i)" ? NKColors.primaryGradientStart : NKColors.glassBackground(colorScheme))
                             )
                     }
                 }
@@ -413,7 +413,7 @@ struct QuestionCard: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(answer == (option == "Evet" ? "true" : "false")
                                       ? NKColors.primaryGradientStart
-                                      : Color.white.opacity(0.06))
+                                      : NKColors.glassBackground(colorScheme))
                         )
                 }
             }

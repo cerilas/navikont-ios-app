@@ -127,7 +127,7 @@ struct CheckinView: View {
                                                 RoundedRectangle(cornerRadius: 12)
                                                     .fill(viewModel.values["mood"] == emoji
                                                           ? NKColors.accentTeal.opacity(0.2)
-                                                          : Color.white.opacity(0.06))
+                                                          : NKColors.glassBackground(colorScheme))
                                                     .overlay(
                                                         RoundedRectangle(cornerRadius: 12)
                                                             .stroke(viewModel.values["mood"] == emoji
@@ -306,7 +306,7 @@ struct CheckinFieldCard: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(value == emoji
                                       ? NKColors.accentTeal.opacity(0.2)
-                                      : Color.white.opacity(0.06))
+                                      : NKColors.glassBackground(colorScheme))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(value == emoji
@@ -333,7 +333,7 @@ struct CheckinFieldCard: View {
                             .font(.system(size: 12, weight: value == "\(i)" ? .bold : .regular))
                             .foregroundColor(value == "\(i)" ? .white : NKColors.textSecondary(colorScheme))
                             .frame(minWidth: 26, minHeight: 26)
-                            .background(Circle().fill(value == "\(i)" ? NKColors.accentTeal : Color.white.opacity(0.08)))
+                            .background(Circle().fill(value == "\(i)" ? NKColors.accentTeal : NKColors.glassBackground(colorScheme)))
                     }
                 }
             }
@@ -351,7 +351,7 @@ struct CheckinFieldCard: View {
                         .frame(height: 44)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(value == (option == "Evet" ? "true" : "false") ? NKColors.accentTeal : Color.white.opacity(0.06))
+                                .fill(value == (option == "Evet" ? "true" : "false") ? NKColors.accentTeal : NKColors.glassBackground(colorScheme))
                         )
                 }
             }
@@ -377,7 +377,7 @@ struct CheckinFieldCard: View {
                     .padding(.vertical, 10)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(value == optionVal ? NKColors.accentTeal.opacity(0.12) : Color.white.opacity(0.04))
+                            .fill(value == optionVal ? NKColors.accentTeal.opacity(0.12) : NKColors.glassBackground(colorScheme))
                     )
                 }
             }

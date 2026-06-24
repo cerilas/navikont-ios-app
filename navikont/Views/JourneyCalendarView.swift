@@ -259,7 +259,7 @@ struct JourneyCalendarView: View {
         case .current:
             return NKColors.accentTeal.opacity(0.15)
         case .future:
-            return Color.white.opacity(0.05)
+            return NKColors.glassBackground(colorScheme)
         }
     }
     
