@@ -64,6 +64,8 @@ struct navikontApp: App {
     @StateObject private var authService = AuthService()
     @StateObject private var themeManager = ThemeManager.shared
     
+    @AppStorage("app_language") private var appLanguage: String = "system"
+    
     init() {
         // Yenileme animasyonunun (spinner) rengini temanın ana rengi yapıyoruz
         UIRefreshControl.appearance().tintColor = UIColor(Color(hex: "06B6D4"))
@@ -75,6 +77,7 @@ struct navikontApp: App {
                 .environmentObject(authService)
                 .environmentObject(themeManager)
                 .preferredColorScheme(themeManager.currentMode.colorScheme)
+                .id(appLanguage) // Force redraw when language changes
         }
     }
 }

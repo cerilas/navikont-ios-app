@@ -16,7 +16,7 @@ struct NotificationSettingsView: View {
                 VStack(spacing: 24) {
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Uygulama Bildirimleri")
+                        Text(AppStrings.t("Uygulama Bildirimleri"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                             .padding(.leading, 16)
@@ -26,8 +26,8 @@ struct NotificationSettingsView: View {
                             NotificationToggleRow(
                                 icon: "bell.badge.fill",
                                 color: .orange,
-                                title: "Günlük Hatırlatıcılar",
-                                subtitle: "Görev ve egzersiz hatırlatmaları",
+                                title: AppStrings.t("Günlük Hatırlatıcılar"),
+                                subtitle: AppStrings.t("Görev ve egzersiz hatırlatmaları"),
                                 isOn: $dailyReminders
                             )
                             
@@ -38,8 +38,8 @@ struct NotificationSettingsView: View {
                             NotificationToggleRow(
                                 icon: "drop.fill",
                                 color: .cyan,
-                                title: "Su İçme Hatırlatıcıları",
-                                subtitle: "Düzenli sıvı alımı takibi",
+                                title: AppStrings.t("Su İçme Hatırlatıcıları"),
+                                subtitle: AppStrings.t("Düzenli sıvı alımı takibi"),
                                 isOn: $waterReminder
                             )
                             
@@ -50,8 +50,8 @@ struct NotificationSettingsView: View {
                             NotificationToggleRow(
                                 icon: "speaker.slash.fill",
                                 color: .purple,
-                                title: "Sessiz Mod",
-                                subtitle: "Bildirimleri sessiz al",
+                                title: AppStrings.t("Sessiz Mod"),
+                                subtitle: AppStrings.t("Bildirimleri sessiz al"),
                                 isOn: $silentMode
                             )
                         }
@@ -66,7 +66,7 @@ struct NotificationSettingsView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Diğer Bildirimler")
+                        Text(AppStrings.t("Diğer Bildirimler"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                             .padding(.leading, 16)
@@ -76,8 +76,8 @@ struct NotificationSettingsView: View {
                             NotificationToggleRow(
                                 icon: "envelope.fill",
                                 color: .blue,
-                                title: "E-posta Bültenleri",
-                                subtitle: "Haftalık raporlar ve makaleler",
+                                title: AppStrings.t("E-posta Bültenleri"),
+                                subtitle: AppStrings.t("Haftalık raporlar ve makaleler"),
                                 isOn: $emailAlerts
                             )
                         }
@@ -91,7 +91,7 @@ struct NotificationSettingsView: View {
                         )
                     }
                     
-                    Text("Bu ayarlar telefonunuzun yerleşik hafızasında güvenle saklanmaktadır.")
+                    Text(AppStrings.t("Bu ayarlar telefonunuzun yerleşik hafızasında güvenle saklanmaktadır."))
                         .font(.system(size: 13))
                         .foregroundColor(NKColors.textTertiary(colorScheme))
                         .multilineTextAlignment(.center)

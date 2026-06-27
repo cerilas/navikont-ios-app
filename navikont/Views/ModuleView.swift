@@ -229,7 +229,7 @@ struct ModuleView: View {
             HStack(spacing: 6) {
                 Image(systemName: "clock.fill")
                     .font(.system(size: 12))
-                Text("Tahmini okuma süresi: 3 dk")
+                Text(AppStrings.t("Tahmini okuma süresi: 3 dk"))
                     .font(.system(size: 13, weight: .medium))
             }
             .foregroundColor(NKColors.textTertiary(colorScheme))
@@ -292,7 +292,7 @@ struct ModuleView: View {
                     .font(.system(size: 44))
                     .foregroundColor(typeUI.color)
 
-                Text("Anketi doldurmak için aşağıdaki butona tıklayın")
+                Text(AppStrings.t("Anketi doldurmak için aşağıdaki butona tıklayın"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(NKColors.textSecondary(colorScheme))
                     .multilineTextAlignment(.center)
@@ -303,7 +303,7 @@ struct ModuleView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "square.and.pencil")
                             .font(.system(size: 16, weight: .semibold))
-                        Text("Anketi Başlat")
+                        Text(AppStrings.t("Anketi Başlat"))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                     }
                     .foregroundColor(.white)
@@ -334,7 +334,7 @@ struct ModuleView: View {
                     .font(.system(size: 44))
                     .foregroundColor(NKColors.accentTeal)
 
-                Text("Günlük durumunuzu kaydetmek için aşağıdaki butona tıklayın")
+                Text(AppStrings.t("Günlük durumunuzu kaydetmek için aşağıdaki butona tıklayın"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(NKColors.textSecondary(colorScheme))
                     .multilineTextAlignment(.center)
@@ -345,7 +345,7 @@ struct ModuleView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 16, weight: .semibold))
-                        Text("Günlük Takibi Başlat")
+                        Text(AppStrings.t("Günlük Takibi Başlat"))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                     }
                     .foregroundColor(.white)
@@ -377,7 +377,7 @@ struct ModuleView: View {
                         .font(.system(size: 50))
                         .foregroundColor(NKColors.accentTeal)
 
-                    Text("Egzersizi başlatmak için hazır olun")
+                    Text(AppStrings.t("Egzersizi başlatmak için hazır olun"))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
@@ -409,7 +409,7 @@ struct ModuleView: View {
                 HStack {
                     Image(systemName: "info.circle.fill")
                         .foregroundColor(NKColors.textSecondary(colorScheme))
-                    Text("TALİMATLAR")
+                    Text(AppStrings.t("TALİMATLAR"))
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
@@ -474,7 +474,7 @@ struct ModuleView: View {
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: "arrow.up.left.and.arrow.down.right")
-                            Text("Tam Ekranda Oku")
+                            Text(AppStrings.t("Tam Ekranda Oku"))
                         }
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
@@ -546,7 +546,7 @@ struct ModuleView: View {
 
     private var measurementContent: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Lütfen aşağıdaki ölçümleri giriniz:")
+            Text(AppStrings.t("Lütfen aşağıdaki ölçümleri giriniz:"))
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(NKColors.textSecondary(colorScheme))
                 
@@ -568,7 +568,7 @@ struct ModuleView: View {
                             ))
                             .tint(NKColors.accentTeal)
                         } else {
-                            TextField("Değer girin", text: Binding(
+                            TextField(AppStrings.t("Değer girin"), text: Binding(
                                 get: { measurementValues[metric.name] ?? "" },
                                 set: { measurementValues[metric.name] = $0 }
                             ))
@@ -581,7 +581,7 @@ struct ModuleView: View {
                     }
                 }
             } else {
-                Text("Ölçüm ayarları bulunamadı.")
+                Text(AppStrings.t("Ölçüm ayarları bulunamadı."))
                     .foregroundColor(.gray)
             }
         }
@@ -627,7 +627,7 @@ struct ModuleView: View {
                             Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "checkmark")
                                 .font(.system(size: 16, weight: .bold))
 
-                            Text(task.isCompleted ? "Tamamlandı" : completeButtonText)
+                            Text(task.isCompleted ? AppStrings.t("Tamamlandı") : completeButtonText)
                                 .font(.system(size: 17, weight: .bold, design: .rounded))
                         }
                         .foregroundColor(.white)
@@ -683,11 +683,11 @@ struct ModuleView: View {
                 .padding(.top, 16)
                 
                 VStack(spacing: 12) {
-                    Text("Tebrikler!")
+                    Text(AppStrings.t("Tebrikler!"))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(NKColors.textPrimary(colorScheme))
                     
-                    Text("Bu modülü başarıyla tamamladınız.")
+                    Text(AppStrings.t("Bu modülü başarıyla tamamladınız."))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
                         .multilineTextAlignment(.center)
@@ -699,7 +699,7 @@ struct ModuleView: View {
                         await viewModel.reloadDashboard()
                     }
                 }) {
-                    Text("Devam Et")
+                    Text(AppStrings.t("Devam Et"))
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -844,7 +844,7 @@ struct BreathingCircle: View {
     @State private var pulseScale: CGFloat = 0.8
     @State private var opacity: Double = 0.4
     @State private var textScale: CGFloat = 0.95
-    @State private var breathText = "Hazır Olun"
+    @State private var breathText = AppStrings.t("Hazır Olun")
     
     @State private var isPlaying: Bool = false
     @State private var currentCycle: Int = 0
@@ -945,9 +945,9 @@ struct BreathingCircle: View {
             opacity = 0.4
             textScale = 0.95
             if currentCycle >= totalCycles {
-                breathText = "Tamamlandı"
+                breathText = AppStrings.t("Tamamlandı")
             } else {
-                breathText = "Hazır Olun"
+                breathText = AppStrings.t("Hazır Olun")
             }
         }
     }
@@ -957,13 +957,13 @@ struct BreathingCircle: View {
         animationTask?.cancel()
         animationTask = Task {
             // Give a short grace period
-            await MainActor.run { breathText = "Başlıyoruz..." }
+            await MainActor.run { breathText = AppStrings.t("Başlıyoruz...") }
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             
             while !Task.isCancelled && currentCycle < totalCycles {
                 // Inhale
                 await MainActor.run {
-                    breathText = "Nefes Alın"
+                    breathText = AppStrings.t("Nefes Alın")
                     withAnimation(.easeInOut(duration: inhaleDuration)) {
                         pulseScale = 1.0
                         opacity = 0.8
@@ -975,14 +975,14 @@ struct BreathingCircle: View {
                 
                 // Hold
                 if holdDuration > 0 {
-                    await MainActor.run { breathText = "Tutun" }
+                    await MainActor.run { breathText = AppStrings.t("Tutun") }
                     try? await Task.sleep(nanoseconds: UInt64(holdDuration * 1_000_000_000))
                     if Task.isCancelled { break }
                 }
                 
                 // Exhale
                 await MainActor.run {
-                    breathText = "Nefes Verin"
+                    breathText = AppStrings.t("Nefes Verin")
                     withAnimation(.easeInOut(duration: exhaleDuration)) {
                         pulseScale = 0.6
                         opacity = 0.3
@@ -994,7 +994,7 @@ struct BreathingCircle: View {
                 
                 // Hold Empty
                 if holdEmptyDuration > 0 {
-                    await MainActor.run { breathText = "Tutun" }
+                    await MainActor.run { breathText = AppStrings.t("Tutun") }
                     try? await Task.sleep(nanoseconds: UInt64(holdEmptyDuration * 1_000_000_000))
                     if Task.isCancelled { break }
                 }
@@ -1172,21 +1172,21 @@ struct RiskAlertContentView: View {
                     cardView(
                         icon: "checkmark.shield.fill",
                         color: NKColors.success,
-                        title: "Her Şey Yolunda",
+                        title: AppStrings.t("Her Şey Yolunda"),
                         message: safeMessage
                     )
                 case .risk:
                     cardView(
                         icon: "exclamationmark.triangle.fill",
                         color: NKColors.danger,
-                        title: "Klinik Uyarı",
+                        title: AppStrings.t("Klinik Uyarı"),
                         message: alertMessage
                     )
                 case .missing:
                     cardView(
                         icon: "lock.doc.fill",
                         color: NKColors.textSecondary(colorScheme),
-                        title: "Veri Bekleniyor",
+                        title: AppStrings.t("Veri Bekleniyor"),
                         message: missingMessage,
                         showButton: true
                     )
@@ -1230,7 +1230,7 @@ struct RiskAlertContentView: View {
                 Button(action: {
                     onSolveTest?()
                 }) {
-                    Text("İlgili Anketi Çöz")
+                    Text(AppStrings.t("İlgili Anketi Çöz"))
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                         .padding(.horizontal, 24)

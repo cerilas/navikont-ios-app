@@ -10,9 +10,9 @@ enum ThemeMode: String, CaseIterable {
     
     var displayName: String {
         switch self {
-        case .system: return "Otomatik"
-        case .light: return "Aydınlık"
-        case .dark: return "Karanlık"
+        case .system: return AppStrings.t("Otomatik")
+        case .light: return AppStrings.t("Aydınlık")
+        case .dark: return AppStrings.t("Karanlık")
         }
     }
     

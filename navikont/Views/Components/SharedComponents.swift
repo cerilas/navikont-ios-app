@@ -18,10 +18,9 @@ struct AnimatedMeshBackground: View {
             endPoint: animateGradient ? .bottomTrailing : .topTrailing
         )
         .ignoresSafeArea()
+        .animation(.easeInOut(duration: 6).repeatForever(autoreverses: true), value: animateGradient)
         .onAppear {
-            withAnimation(.easeInOut(duration: 6).repeatForever(autoreverses: true)) {
-                animateGradient.toggle()
-            }
+            animateGradient.toggle()
         }
     }
 }
@@ -60,10 +59,9 @@ struct FloatingOrbs: View {
                     y: animate ? 80 : -20
                 )
         }
+        .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animate)
         .onAppear {
-            withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
-                animate = true
-            }
+            animate = true
         }
     }
 }
@@ -184,7 +182,7 @@ struct StreakBadge: View {
                 .scaleEffect(flicker ? 1.15 : 1.0)
                 .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: flicker)
             
-            Text("\(count) gün")
+            Text("\(count) \(AppStrings.t("gün"))")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundColor(NKColors.accentAmber)
         }
@@ -217,11 +215,10 @@ struct PulseDot: View {
                     .stroke(color, lineWidth: 2)
                     .scaleEffect(pulse ? 2.5 : 1)
                     .opacity(pulse ? 0 : 0.6)
+                    .animation(.easeOut(duration: 1.5).repeatForever(autoreverses: false), value: pulse)
             )
             .onAppear {
-                withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                    pulse = true
-                }
+                pulse = true
             }
     }
 }

@@ -38,7 +38,7 @@ struct CheckinView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: NKColors.accentTeal))
                 .scaleEffect(1.5)
-            Text("Check-in formu yükleniyor...")
+            Text(AppStrings.t("Check-in formu yükleniyor..."))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(NKColors.textSecondary(colorScheme))
         }
@@ -55,7 +55,7 @@ struct CheckinView: View {
                 .font(.system(size: 15))
                 .foregroundColor(NKColors.textSecondary(colorScheme))
                 .multilineTextAlignment(.center)
-            Button("Tekrar Dene") {
+            Button(AppStrings.t("Tekrar Dene")) {
                 Task { await viewModel.load(templateId: checkinTemplateId) }
             }
             .font(.system(size: 15, weight: .semibold))
@@ -89,7 +89,7 @@ struct CheckinView: View {
                 Text(moduleTitle)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundColor(NKColors.textPrimary(colorScheme))
-                Text("Bugünkü durumunuzu kaydedin")
+                Text(AppStrings.t("Bugünkü durumunuzu kaydedin"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(NKColors.textSecondary(colorScheme))
             }
@@ -112,7 +112,7 @@ struct CheckinView: View {
                     } else {
                         // Fallback: no fields defined, show a simple daily mood check
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Bugün kendinizi nasıl hissediyorsunuz?")
+                            Text(AppStrings.t("Bugün kendinizi nasıl hissediyorsunuz?"))
                                 .font(.system(size: 17, weight: .semibold))
                                 .foregroundColor(NKColors.textPrimary(colorScheme))
 
@@ -168,7 +168,7 @@ struct CheckinView: View {
                     } else {
                         Image(systemName: "heart.fill")
                             .font(.system(size: 16, weight: .semibold))
-                        Text("Check-in Tamamla")
+                        Text(AppStrings.t("Check-in Tamamla"))
                             .font(.system(size: 17, weight: .bold, design: .rounded))
                     }
                 }
@@ -210,7 +210,7 @@ struct CheckinView: View {
                 .padding(.top, 16)
                 
                 VStack(spacing: 12) {
-                    Text("Check-in Tamamlandı!")
+                    Text(AppStrings.t("Check-in Tamamlandı!"))
                         .font(.system(size: 26, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
@@ -219,7 +219,7 @@ struct CheckinView: View {
                             .padding(.vertical, 4)
                     }
                     
-                    Text("Günlük verileriniz kaydedildi.")
+                    Text(AppStrings.t("Günlük verileriniz kaydedildi."))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
@@ -229,7 +229,7 @@ struct CheckinView: View {
                     onComplete()
                     dismiss()
                 }) {
-                    Text("Devam Et")
+                    Text(AppStrings.t("Devam Et"))
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(NKColors.bgPrimary(colorScheme))
                         .frame(maxWidth: .infinity)
@@ -387,7 +387,7 @@ struct CheckinFieldCard: View {
     private var numberView: some View {
         HStack {
             TextField("", text: Binding(get: { value }, set: { onValue($0) }),
-                      prompt: Text("0").foregroundColor(NKColors.textTertiary(colorScheme)))
+                      prompt: Text(AppStrings.t("0")).foregroundColor(NKColors.textTertiary(colorScheme)))
                 .foregroundColor(NKColors.textPrimary(colorScheme))
                 .keyboardType(.decimalPad)
                 .padding(14)
@@ -453,7 +453,7 @@ class CheckinViewModel: ObservableObject {
                 showSuccess = true
             }
         } catch {
-            errorMessage = "Gönderilemedi: \(error.localizedDescription)"
+            errorMessage = AppStrings.t("Gönderilemedi") + ": \(error.localizedDescription)"
         }
         isSubmitting = false
     }

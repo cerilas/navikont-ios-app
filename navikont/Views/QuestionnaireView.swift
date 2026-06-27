@@ -46,7 +46,7 @@ struct QuestionnaireView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: NKColors.primaryGradientStart))
                 .scaleEffect(1.5)
-            Text("Anket yükleniyor...")
+            Text(AppStrings.t("Anket yükleniyor..."))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(NKColors.textSecondary(colorScheme))
         }
@@ -63,7 +63,7 @@ struct QuestionnaireView: View {
                 .font(.system(size: 15))
                 .foregroundColor(NKColors.textSecondary(colorScheme))
                 .multilineTextAlignment(.center)
-            Button("Tekrar Dene") {
+            Button(AppStrings.t("Tekrar Dene")) {
                 Task { await viewModel.load(versionId: questionnaireVersionId) }
             }
             .font(.system(size: 15, weight: .semibold))
@@ -133,7 +133,7 @@ struct QuestionnaireView: View {
                     Button(action: { viewModel.goBack() }) {
                         HStack(spacing: 8) {
                             Image(systemName: "chevron.left")
-                            Text("Geri")
+                            Text(AppStrings.t("Geri"))
                         }
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
@@ -212,11 +212,11 @@ struct QuestionnaireView: View {
                 .padding(.top, 16)
                 
                 VStack(spacing: 12) {
-                    Text("Anket Tamamlandı")
+                    Text(AppStrings.t("Anket Tamamlandı"))
                         .font(.system(size: 26, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
-                    Text("Cevaplarınız güvenle kaydedildi.")
+                    Text(AppStrings.t("Cevaplarınız güvenle kaydedildi."))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
@@ -254,7 +254,7 @@ struct QuestionCard: View {
             // Question label
             VStack(alignment: .leading, spacing: 6) {
                 if question.isRequired == true {
-                    Text("Zorunlu")
+                    Text(AppStrings.t("Zorunlu"))
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(NKColors.accentRose)
                         .tracking(1)
@@ -351,11 +351,11 @@ struct QuestionCard: View {
             }
 
             HStack {
-                Text("Hiç etkilemiyor")
+                Text(AppStrings.t("Hiç etkilemiyor"))
                     .font(.system(size: 11))
                     .foregroundColor(NKColors.textTertiary(colorScheme))
                 Spacer()
-                Text("Çok etkiliyor")
+                Text(AppStrings.t("Çok etkiliyor"))
                     .font(.system(size: 11))
                     .foregroundColor(NKColors.textTertiary(colorScheme))
             }
@@ -392,7 +392,7 @@ struct QuestionCard: View {
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(NKColors.glassBorder(colorScheme), lineWidth: 1))
                 .frame(height: 50)
             TextField("", text: Binding(get: { answer }, set: { onAnswer($0) }),
-                      prompt: Text("0").foregroundColor(NKColors.textTertiary(colorScheme)))
+                      prompt: Text(AppStrings.t("0")).foregroundColor(NKColors.textTertiary(colorScheme)))
                 .foregroundColor(NKColors.textPrimary(colorScheme))
                 .keyboardType(.numberPad)
                 .padding(14)
@@ -458,7 +458,7 @@ class QuestionnaireViewModel: ObservableObject {
         do {
             questionnaire = try await service.fetchQuestionnaire(versionId: versionId)
         } catch {
-            errorMessage = "Anket yüklenemedi: \(error.localizedDescription)"
+            errorMessage = AppStrings.t("Anket yüklenemedi") + ": \(error.localizedDescription)"
         }
         isLoading = false
     }

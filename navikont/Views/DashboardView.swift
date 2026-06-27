@@ -75,15 +75,15 @@ struct DashboardView: View {
         }
         .navigationViewStyle(.stack)
         .alert("Test Modu Aktivasyonu", isPresented: $showTestModeAlert) {
-            SecureField("Şifre", text: $testModePassword)
-            Button("İptal", role: .cancel) { }
-            Button("Aktive Et") {
+            SecureField(AppStrings.t("Şifre"), text: $testModePassword)
+            Button(AppStrings.t("İptal"), role: .cancel) { }
+            Button(AppStrings.t("Aktive Et")) {
                 if testModePassword == "2423" {
                     authService.isTestModeEnabled = true
                 }
             }
         } message: {
-            Text("Geliştirici test modunu açmak için şifreyi girin.")
+            Text(AppStrings.t("Geliştirici test modunu açmak için şifreyi girin."))
         }
         }
         }
@@ -172,7 +172,7 @@ struct DashboardView: View {
         HStack(spacing: 0) {
             AnimatedCounter(
                 value: enrollment.currentDay,
-                label: "Program Günü",
+                label: AppStrings.t("Program Günü"),
                 icon: "calendar",
                 color: NKColors.primaryGradientStart
             )
@@ -183,7 +183,7 @@ struct DashboardView: View {
             
             AnimatedCounter(
                 value: completedCount,
-                label: "Tamamlanan",
+                label: AppStrings.t("Tamamlanan"),
                 icon: "checkmark.circle.fill",
                 color: NKColors.success
             )
@@ -194,7 +194,7 @@ struct DashboardView: View {
             
             AnimatedCounter(
                 value: viewModel.todayTasks.count,
-                label: "Toplam Görev",
+                label: AppStrings.t("Toplam Görev"),
                 icon: "list.bullet",
                 color: NKColors.accentAmber
             )
@@ -219,11 +219,11 @@ struct DashboardView: View {
                 )
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("NaviKont Programı")
+                    Text(AppStrings.t("NaviKont Programı"))
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(NKColors.textPrimary(colorScheme))
                     
-                    Text("Gün \(enrollment.currentDay) • Aktif")
+                    Text(AppStrings.t("Gün") + " \(enrollment.currentDay) • " + AppStrings.t("Aktif"))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(NKColors.accentTeal)
                     
@@ -279,7 +279,7 @@ struct DashboardView: View {
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: "arrow.clockwise")
-                    Text("Tekrar Dene")
+                    Text(AppStrings.t("Tekrar Dene"))
                 }
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(.white)
@@ -297,7 +297,7 @@ struct DashboardView: View {
     
     private var isPendingReview: Bool {
         viewModel.todayTasks.count == 1 &&
-        viewModel.todayTasks.first?.module.title == "Değerlendirmeniz Alındı"
+        viewModel.todayTasks.first?.module.title == "İnceleme Bekleniyor"
     }
     
     private var tasksSection: some View {
@@ -306,7 +306,7 @@ struct DashboardView: View {
                 pendingReviewCard
             } else {
                 HStack {
-                    Text("Bugünkü Görevler")
+                    Text(AppStrings.t("Bugünkü Görevler"))
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(NKColors.textPrimary(colorScheme))
                     
@@ -333,7 +333,7 @@ struct DashboardView: View {
                         }
                     }) {
                         HStack {
-                            Text("Günü Tamamla")
+                            Text(AppStrings.t("Günü Tamamla"))
                                 .font(.system(size: 16, weight: .bold, design: .rounded))
                             Image(systemName: "arrow.right.circle.fill")
                         }
@@ -404,11 +404,19 @@ struct DashboardView: View {
             .padding(.top, 24)
             
             // Title
-            Text("Değerlendirmeniz Alındı")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
-                .foregroundColor(NKColors.textPrimary(colorScheme))
-                .multilineTextAlignment(.center)
-                .padding(.top, 20)
+            if let pendingTitle = viewModel.todayTasks.first?.module.title {
+                Text(pendingTitle)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 20)
+            } else {
+                Text(AppStrings.t("Değerlendirmeniz Alındı"))
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(NKColors.textPrimary(colorScheme))
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 20)
+            }
             
             // Divider
             Rectangle()
@@ -458,7 +466,7 @@ struct DashboardView: View {
                             .opacity(0.6)
                     )
                 
-                Text("İnceleme Bekleniyor")
+                Text(AppStrings.t("İnceleme Bekleniyor"))
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(Color(hex: "F59E0B"))
             }
@@ -512,10 +520,10 @@ struct DashboardView: View {
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return "Günaydın 👋"
-        case 12..<17: return "İyi günler 👋"
-        case 17..<22: return "İyi akşamlar 👋"
-        default: return "İyi geceler 🌙"
+        case 5..<12: return AppStrings.t("Günaydın 👋")
+        case 12..<17: return AppStrings.t("İyi günler 👋")
+        case 17..<22: return AppStrings.t("İyi akşamlar 👋")
+        default: return AppStrings.t("İyi geceler 🌙")
         }
     }
     
@@ -578,9 +586,9 @@ struct TaskCard: View {
                         .foregroundColor(typeUI.color.opacity(0.9))
                     
                     if task.module.required {
-                        Text("•")
+                        Text(AppStrings.t("•"))
                             .foregroundColor(NKColors.textTertiary(colorScheme))
-                        Text("Zorunlu")
+                        Text(AppStrings.t("Zorunlu"))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(NKColors.accentRose)
                     }
@@ -618,7 +626,7 @@ extension DashboardView {
     // MARK: - Test Mode Banner
     private var testModeBanner: some View {
         HStack {
-            Text("TEST MODU AKTİF")
+            Text(AppStrings.t("TEST MODU AKTİF"))
                 .font(.system(size: 14, weight: .heavy))
                 .foregroundColor(.black)
             
@@ -631,7 +639,7 @@ extension DashboardView {
                         viewModel.updateCurrentDay(to: newDay)
                     }
                 ), in: 1...365) {
-                    Text("Gün: \(enrollment.currentDay ?? 1)")
+                    Text(AppStrings.t("Gün:") + " \(enrollment.currentDay ?? 1)")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.black)
                 }
@@ -769,7 +777,7 @@ struct StatusBlockedView: View {
                         authService.logout()
                     }
                 }) {
-                    Text("Oturumu Kapat")
+                    Text(AppStrings.t("Oturumu Kapat"))
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)

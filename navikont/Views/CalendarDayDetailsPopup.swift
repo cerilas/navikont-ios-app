@@ -14,7 +14,7 @@ struct CalendarDayDetailsPopup: View {
     private var displayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM yyyy, EEEE"
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = AppStrings.currentLocale
         return formatter
     }()
     
@@ -47,7 +47,7 @@ struct CalendarDayDetailsPopup: View {
                             
                             // Scheduled Tasks Summary
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("Programın \(details.targetDayNumber). Günü")
+                                Text("\(AppStrings.t("Programın")) \(details.targetDayNumber). \(AppStrings.t("Günü"))")
                                     .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
@@ -60,14 +60,14 @@ struct CalendarDayDetailsPopup: View {
                                     
                                     VStack(alignment: .leading, spacing: 4) {
                                         if details.scheduledTasks.isEmpty {
-                                            Text("Görev Yok")
+                                            Text(AppStrings.t("Görev Yok"))
                                                 .font(.system(size: 16, weight: .bold))
                                                 .foregroundColor(NKColors.textPrimary(colorScheme))
-                                            Text("Bu güne atanmış bir görev bulunmuyor.")
+                                            Text(AppStrings.t("Bu güne atanmış bir görev bulunmuyor."))
                                                 .font(.system(size: 14))
                                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                                         } else {
-                                            Text(status.isCompleted ? "Tamamlandı" : "Eksik / Yapılmadı")
+                                            Text(status.isCompleted ? AppStrings.t("Tamamlandı") : AppStrings.t("Eksik / Yapılmadı"))
                                                 .font(.system(size: 16, weight: .bold))
                                                 .foregroundColor(status.isCompleted ? NKColors.success : NKColors.danger)
                                             
@@ -89,7 +89,7 @@ struct CalendarDayDetailsPopup: View {
                             let extraDays = getExtraDays(details: details)
                             if !extraDays.isEmpty {
                                 VStack(alignment: .leading, spacing: 16) {
-                                    Text("Ayrıca Bu Tarihte Çözülenler")
+                                    Text(AppStrings.t("Ayrıca Bu Tarihte Çözülenler"))
                                         .font(.system(size: 18, weight: .bold))
                                         .foregroundColor(NKColors.accentAmber)
                                     
@@ -99,8 +99,8 @@ struct CalendarDayDetailsPopup: View {
                                                 .foregroundColor(NKColors.success)
                                                 .font(.system(size: 24))
                                             
-                                            Text("Programın \(dayNum). Günü görevleri çözüldü")
-                                                .font(.system(size: 15, weight: .medium))
+                                            Text("\(AppStrings.t("Programın")) \(dayNum). \(AppStrings.t("Günü görevleri çözüldü"))")
+                                                .font(.system(size: 13, weight: .medium))
                                                 .foregroundColor(NKColors.textPrimary(colorScheme))
                                         }
                                         .padding()
@@ -116,7 +116,7 @@ struct CalendarDayDetailsPopup: View {
                     }
                 } else {
                     Spacer()
-                    Text("Veri yüklenemedi.")
+                    Text(AppStrings.t("Veri yüklenemedi."))
                         .foregroundColor(NKColors.danger)
                     Spacer()
                 }
@@ -152,7 +152,7 @@ struct CalendarDayDetailsPopup: View {
             if let maxDate = dates.max() {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "d MMMM yyyy"
-                formatter.locale = Locale(identifier: "tr_TR")
+                formatter.locale = AppStrings.currentLocale
                 completedDateStr = formatter.string(from: maxDate)
             }
         }

@@ -130,3 +130,18 @@ struct Disease: Codable, Identifiable, Sendable {
     let id: String
     let name: String
 }
+
+// MARK: - FAQs
+struct FAQ: Codable, Identifiable, Sendable {
+    let id: UUID
+    let question: String
+    let answer: String
+    let orderIndex: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case question
+        case answer
+        case orderIndex = "order_index"
+    }
+}

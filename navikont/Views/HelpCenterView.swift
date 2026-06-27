@@ -1,49 +1,13 @@
 import SwiftUI
 
-struct FAQItem: Identifiable {
-    let id = UUID()
-    let question: String
-    let answer: String
-}
-
 struct HelpCenterView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     
-    // 10 Common Questions & Answers
-    private let faqs: [FAQItem] = [
-        FAQItem(question: "1. Navikont uygulaması nedir ve ne işe yarar?",
-                answer: "Navikont, tedavi sürecinizi kolaylaştıran, günlük sağlık durumunuzu ve görevlerinizi takip edip doktorunuzla senkronize olmanızı sağlayan akıllı bir hasta takip platformudur."),
-        
-        FAQItem(question: "2. Günlük check-in görevlerimi nasıl tamamlarım?",
-                answer: "Ana sayfada (Dashboard) bulunan 'Günün Görevleri' kartlarına tıklayarak size atanan günlük anket, ölçüm veya bilgilendirme modüllerine ulaşabilir ve kolayca tamamlayabilirsiniz."),
-        
-        FAQItem(question: "3. Şifremi unutursam nasıl sıfırlayabilirim?",
-                answer: "Giriş ekranında bulunan 'Şifremi Unuttum' bağlantısına tıklayarak e-posta adresinize bir şifre sıfırlama bağlantısı gönderebilirsiniz. Ayrıca profilinizdeki 'Şifre ve Güvenlik' sekmesinden mevcut şifrenizi dilediğiniz zaman değiştirebilirsiniz."),
-        
-        FAQItem(question: "4. Sağlık verilerim ve kişisel bilgilerim güvende mi?",
-                answer: "Kesinlikle. Tüm verileriniz KVKK standartlarına uygun olarak uçtan uca şifrelenmiş sunucularda saklanmaktadır. Bilgileriniz hiçbir kurum veya üçüncü şahısla paylaşılmaz."),
-        
-        FAQItem(question: "5. Günlük seri (streak) nedir?",
-                answer: "Seri (Streak), görevlerinizi ara vermeden üst üste kaç gün boyunca tamamladığınızı gösteren bir motivasyon aracıdır. Her gün check-in yaptığınızda seri puanınız artar."),
-        
-        FAQItem(question: "6. Doktorum buraya girdiğim bilgileri görebiliyor mu?",
-                answer: "Evet, girdiğiniz check-in verileri ve anket sonuçları, sizin tedavinizi yakından takip edebilmesi için anlık olarak sadece yetkili doktorunuzun (veya tedavi ekibinizin) ekranına düşmektedir."),
-        
-        FAQItem(question: "7. Bildirim ayarlarını nasıl değiştirebilirim?",
-                answer: "Profil sayfanıza giderek 'Bildirimler' menüsüne tıklayabilir; günlük hatırlatıcıları, su içme uyarılarını veya e-posta bültenlerini dilediğiniz gibi açıp kapatabilirsiniz."),
-        
-        FAQItem(question: "8. Tamamladığım bir anketi sonradan değiştirebilir miyim?",
-                answer: "Güncel sağlık durumunuzun doğruluğu açısından, gün içinde bir kez gönderdiğiniz (tamamladığınız) check-in verilerini tekrar değiştiremezsiniz. Bir sonraki gün yeni verilerinizi girebilirsiniz."),
-        
-        FAQItem(question: "9. Uygulama neden aktif bir internet bağlantısı istiyor?",
-                answer: "Verilerinizin doktorunuzla anında senkronize edilebilmesi, anketlerin güvenle kaydedilmesi ve yeni günlük modüllerinizin (makale vb.) yüklenebilmesi için internet bağlantısı gerekmektedir."),
-        
-        FAQItem(question: "10. Teknik bir sorun yaşarsam kime ulaşmalıyım?",
-                answer: "Uygulamayla ilgili herhangi bir donma, hata veya teknik problem yaşarsanız deniz@cerilas.com adresine e-posta göndererek doğrudan teknik destek ekibimizden yardım alabilirsiniz.")
-    ]
+    @State private var faqs: [FAQ] = []
+    @State private var isLoading: Bool = true
+    @State private var errorMessage: String?
     
-    // UI Helpers
     private var primaryColor: Color { Color(hex: "06B6D4") } // Cyan theme
     
     var body: some View {
@@ -66,11 +30,11 @@ struct HelpCenterView: View {
                                 .foregroundColor(.white)
                         }
                         
-                        Text("Size Nasıl Yardımcı Olabiliriz?")
+                        Text(AppStrings.t("Size Nasıl Yardımcı Olabiliriz?"))
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(NKColors.textPrimary(colorScheme))
                         
-                        Text("Sıkça Sorulan Sorular (SSS)")
+                        Text(AppStrings.t("Sıkça Sorulan Sorular (SSS)"))
                             .font(.system(size: 14))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                     }
@@ -78,16 +42,29 @@ struct HelpCenterView: View {
                     .padding(.bottom, 10)
                     
                     // FAQ List
-                    VStack(spacing: 16) {
-                        ForEach(faqs) { faq in
-                            FAQRow(faq: faq)
+                    if isLoading {
+                        ProgressView()
+                            .padding(.top, 50)
+                    } else if let error = errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 20)
+                    } else if faqs.isEmpty {
+                        Text(AppStrings.t("Henüz hiç SSS eklenmemiş."))
+                            .foregroundColor(NKColors.textTertiary(colorScheme))
+                            .padding(.top, 50)
+                    } else {
+                        VStack(spacing: 16) {
+                            ForEach(faqs) { faq in
+                                FAQRow(faq: faq)
+                            }
                         }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
                     
                     // Contact Support Button
                     VStack(spacing: 12) {
-                        Text("Aradığınız cevabı bulamadınız mı?")
+                        Text(AppStrings.t("Aradığınız cevabı bulamadınız mı?"))
                             .font(.system(size: 14))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                         
@@ -99,7 +76,7 @@ struct HelpCenterView: View {
                         }) {
                             HStack {
                                 Image(systemName: "envelope.fill")
-                                Text("Destek Ekibiyle İletişime Geç")
+                                Text(AppStrings.t("Destek Ekibiyle İletişime Geç"))
                             }
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
@@ -114,14 +91,32 @@ struct HelpCenterView: View {
                 }
             }
         }
-        .navigationTitle("Yardım Merkezi")
+        .navigationTitle(AppStrings.t("Yardım Merkezi"))
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await fetchFAQs()
+        }
+    }
+    
+    private func fetchFAQs() async {
+        do {
+            let fetched = try await NetworkManager.shared.fetchFAQs()
+            await MainActor.run {
+                self.faqs = fetched
+                self.isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = AppStrings.t("Sunucu hatası")
+                self.isLoading = false
+            }
+        }
     }
 }
 
 struct FAQRow: View {
     @Environment(\.colorScheme) var colorScheme
-    let faq: FAQItem
+    let faq: FAQ
     @State private var isExpanded: Bool = false
     
     var body: some View {

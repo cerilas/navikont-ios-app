@@ -41,11 +41,11 @@ struct ChangePasswordView: View {
                                 .foregroundColor(.white)
                         }
                         
-                        Text("Güvenlik Ayarları")
+                        Text(AppStrings.t("Güvenlik Ayarları"))
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(NKColors.textPrimary(colorScheme))
                         
-                        Text("Hesap güvenliğiniz için şifrenizi güçlü ve benzersiz tutun.")
+                        Text(AppStrings.t("Hesap güvenliğiniz için şifrenizi güçlü ve benzersiz tutun."))
                             .font(.system(size: 14))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                             .multilineTextAlignment(.center)
@@ -56,21 +56,21 @@ struct ChangePasswordView: View {
                     
                     // Form Fields
                     VStack(spacing: 16) {
-                        SecureFieldRow(icon: "lock.fill", placeholder: "Eski Şifre", text: $oldPassword)
+                        SecureFieldRow(icon: "lock.fill", placeholder: AppStrings.t("Eski Şifre"), text: $oldPassword)
                         
-                        SecureFieldRow(icon: "key.fill", placeholder: "Yeni Şifre", text: $newPassword)
+                        SecureFieldRow(icon: "key.fill", placeholder: AppStrings.t("Yeni Şifre"), text: $newPassword)
                         
-                        SecureFieldRow(icon: "key.fill", placeholder: "Yeni Şifre (Tekrar)", text: $confirmPassword)
+                        SecureFieldRow(icon: "key.fill", placeholder: AppStrings.t("Yeni Şifre (Tekrar)"), text: $confirmPassword)
                         
                         // Validation Hint
                         if !newPassword.isEmpty && newPassword != confirmPassword {
-                            Text("Yeni şifreler eşleşmiyor")
+                            Text(AppStrings.t("Yeni şifreler eşleşmiyor"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.leading, 16)
                         } else if !newPassword.isEmpty && newPassword.count < 6 {
-                            Text("Şifre en az 6 karakter olmalıdır")
+                            Text(AppStrings.t("Şifre en az 6 karakter olmalıdır"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -111,7 +111,7 @@ struct ChangePasswordView: View {
                                 .background(primaryColor.opacity(0.5))
                                 .cornerRadius(27)
                         } else {
-                            Text("Şifreyi Güncelle")
+                            Text(AppStrings.t("Şifreyi Güncelle"))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -132,9 +132,9 @@ struct ChangePasswordView: View {
         .navigationBarTitleDisplayMode(.inline)
         .alert(isPresented: $showingAlert) {
             Alert(
-                title: Text("Başarılı"),
+                title: Text(AppStrings.t("Başarılı")),
                 message: Text(successMessage ?? "Şifreniz güncellendi."),
-                dismissButton: .default(Text("Tamam")) {
+                dismissButton: .default(Text(AppStrings.t("Tamam"))) {
                     dismiss()
                 }
             )

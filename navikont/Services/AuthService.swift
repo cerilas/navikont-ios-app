@@ -76,7 +76,7 @@ class AuthService: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Giriş başarısız: \(error.localizedDescription)"
+                    self.errorMessage = AppStrings.t("Giriş başarısız") + ": \(error.localizedDescription)"
                     self.isLoading = false
                 }
             }

@@ -70,7 +70,7 @@ class DashboardViewModel: ObservableObject {
                 return
             }
             await MainActor.run {
-                self.errorMessage = "Veri yüklenemedi: \(error.localizedDescription)"
+                self.errorMessage = AppStrings.t("Veri yüklenemedi") + ": \(error.localizedDescription)"
                 self.isLoading = false
             }
         }
@@ -154,7 +154,7 @@ class DashboardViewModel: ObservableObject {
                 self.loadDashboard()
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Güncellenemedi: \(error.localizedDescription)"
+                    self.errorMessage = AppStrings.t("Güncellenemedi") + ": \(error.localizedDescription)"
                     self.isLoading = false
                 }
             }

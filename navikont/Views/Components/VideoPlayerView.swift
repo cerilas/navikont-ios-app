@@ -20,7 +20,7 @@ struct VideoPlayerView: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 220)
                 .cornerRadius(12)
-                .overlay(Text("Geçersiz Video").foregroundColor(.white))
+                .overlay(Text(AppStrings.t("Geçersiz Video")).foregroundColor(.white))
         }
     }
     

@@ -18,13 +18,13 @@ enum NetworkError: LocalizedError {
         case .noData:
             return "Sunucudan veri alınamadı"
         case .decodingError(let error):
-            return "Veri işleme hatası: \(error.localizedDescription)"
+            return AppStrings.t("Veri işleme hatası") + ": \(error.localizedDescription)"
         case .serverError(let code, let message):
-            return message ?? "Sunucu hatası (\(code))"
+            return message ?? AppStrings.t("Sunucu hatası") + " (\(code))"
         case .unauthorized:
             return "Oturum süresi doldu. Lütfen tekrar giriş yapın."
         case .networkFailure(let error):
-            return "Bağlantı hatası: \(error.localizedDescription)"
+            return AppStrings.t("Bağlantı hatası") + ": \(error.localizedDescription)"
         case .unknown:
             return "Bilinmeyen bir hata oluştu"
         }
@@ -183,6 +183,9 @@ final class NetworkManager: @unchecked Sendable {
         request.cachePolicy = .reloadIgnoringLocalCacheData
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        
+        let languageCode = AppStrings.currentLanguageCode
+        request.setValue(languageCode, forHTTPHeaderField: "Accept-Language")
 
         if let token = token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -230,5 +233,16 @@ final class NetworkManager: @unchecked Sendable {
             #endif
             throw NetworkError.decodingError(error)
         }
+    }
+
+    
+    // MARK: - Consents & FAQs
+    
+    func fetchConsents() async throws -> [ConsentDocument] {
+        return try await get("/api/patient/consents")
+    }
+    
+    func fetchFAQs() async throws -> [FAQ] {
+        return try await get("/api/patient/faqs")
     }
 }

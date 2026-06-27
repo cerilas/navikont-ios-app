@@ -48,11 +48,11 @@ struct LoginView: View {
                         .opacity(logoOpacity)
                         
                         VStack(spacing: 6) {
-                            Text("NaviKont")
+                            Text(AppStrings.t("NaviKont"))
                                 .font(.system(size: 34, weight: .bold, design: .rounded))
                                 .foregroundColor(NKColors.textPrimary(colorScheme))
                             
-                            Text("Dijital Sağlık Asistanınız")
+                            Text(AppStrings.t("Dijital Sağlık Asistanınız"))
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                         }
@@ -64,7 +64,7 @@ struct LoginView: View {
                     VStack(spacing: 20) {
                         // Email field
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("E-posta", systemImage: "envelope.fill")
+                            Label(AppStrings.t("E-posta"), systemImage: "envelope.fill")
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                             
@@ -73,7 +73,7 @@ struct LoginView: View {
                                     .font(.system(size: 16))
                                     .foregroundColor(NKColors.textTertiary(colorScheme))
                                 
-                                TextField("", text: $email, prompt: Text("ornek@navikont.com").foregroundColor(NKColors.textTertiary(colorScheme)))
+                                TextField("", text: $email, prompt: Text(AppStrings.t("ornek@navikont.com")).foregroundColor(NKColors.textTertiary(colorScheme)))
                                     .foregroundColor(NKColors.textPrimary(colorScheme))
                                     .autocapitalization(.none)
                                     .keyboardType(.emailAddress)
@@ -93,7 +93,7 @@ struct LoginView: View {
                         
                         // Password field
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("Şifre", systemImage: "lock.fill")
+                            Label(AppStrings.t("Şifre"), systemImage: "lock.fill")
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                             
@@ -102,7 +102,7 @@ struct LoginView: View {
                                     .font(.system(size: 16))
                                     .foregroundColor(NKColors.textTertiary(colorScheme))
                                 
-                                SecureField("", text: $password, prompt: Text("••••••••").foregroundColor(NKColors.textTertiary(colorScheme)))
+                                SecureField("", text: $password, prompt: Text(AppStrings.t("••••••••")).foregroundColor(NKColors.textTertiary(colorScheme)))
                                     .foregroundColor(NKColors.textPrimary(colorScheme))
                                     .textContentType(.password)
                             }
@@ -122,7 +122,7 @@ struct LoginView: View {
                         HStack {
                             Spacer()
                             Button(action: {}) {
-                                Text("Şifremi Unuttum")
+                                Text(AppStrings.t("Şifremi Unuttum"))
                                     .font(.system(size: 13, weight: .medium))
                                     .foregroundColor(NKColors.primaryGradientStart)
                             }
@@ -145,7 +145,7 @@ struct LoginView: View {
                                         .scaleEffect(1.1)
                                 } else {
                                     HStack(spacing: 10) {
-                                        Text("Giriş Yap")
+                                        Text(AppStrings.t("Giriş Yap"))
                                             .font(.system(size: 17, weight: .bold, design: .rounded))
                                         
                                         Image(systemName: "arrow.right")
@@ -190,14 +190,14 @@ struct LoginView: View {
                     
                     // Footer
                     VStack(spacing: 6) {
-                        Text("DiGA Sertifikalı Sağlık Uygulaması")
+                        Text(AppStrings.t("DiGA Sertifikalı Sağlık Uygulaması"))
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(NKColors.textTertiary(colorScheme))
                         
                         HStack(spacing: 4) {
                             Image(systemName: "lock.shield.fill")
                                 .font(.system(size: 10))
-                            Text("Verileriniz KVKK kapsamında korunmaktadır")
+                            Text(AppStrings.t("Verileriniz KVKK kapsamında korunmaktadır"))
                                 .font(.system(size: 10))
                         }
                         .foregroundColor(NKColors.textTertiary(colorScheme).opacity(0.7))

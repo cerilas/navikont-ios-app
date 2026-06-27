@@ -17,6 +17,7 @@ struct HealthProfileView: View {
     @State private var isSaving = false
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var alertIsSuccess = true
     
     let genders = ["Erkek", "Kadın", "Diğer"]
     let bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "0+", "0-"]
@@ -35,11 +36,11 @@ struct HealthProfileView: View {
                             .font(.system(size: 48))
                             .foregroundColor(primaryColor)
                         
-                        Text("Sağlık ve Fiziksel Bilgiler")
+                        Text(AppStrings.t("Sağlık ve Fiziksel Bilgiler"))
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(NKColors.textPrimary(colorScheme))
                         
-                        Text("Size daha iyi hizmet verebilmemiz için fiziksel özelliklerinizi güncel tutun.")
+                        Text(AppStrings.t("Size daha iyi hizmet verebilmemiz için fiziksel özelliklerinizi güncel tutun."))
                             .font(.system(size: 15))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                             .multilineTextAlignment(.center)
@@ -51,7 +52,7 @@ struct HealthProfileView: View {
                     VStack(spacing: 20) {
                         // Birth Date
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Doğum Tarihi")
+                            Text(AppStrings.t("Doğum Tarihi"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                             
@@ -66,13 +67,13 @@ struct HealthProfileView: View {
                         
                         // Gender
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Cinsiyet")
+                            Text(AppStrings.t("Cinsiyet"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                             
-                            Picker("Cinsiyet", selection: $gender) {
+                            Picker(AppStrings.t("Cinsiyet"), selection: $gender) {
                                 ForEach(genders, id: \.self) {
-                                    Text($0)
+                                    Text(AppStrings.t($0))
                                 }
                             }
                             .pickerStyle(.menu)
@@ -85,11 +86,11 @@ struct HealthProfileView: View {
                         // Height & Weight
                         HStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Boy (cm)")
+                                Text(AppStrings.t("Boy (cm)"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
-                                TextField("175", text: $heightCm)
+                                TextField(AppStrings.t("175"), text: $heightCm)
                                     .keyboardType(.decimalPad)
                                     .padding()
                                     .background(NKColors.bgSecondary(colorScheme))
@@ -97,11 +98,11 @@ struct HealthProfileView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Kilo (kg)")
+                                Text(AppStrings.t("Kilo (kg)"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
-                                TextField("70.5", text: $weightKg)
+                                TextField(AppStrings.t("70.5"), text: $weightKg)
                                     .keyboardType(.decimalPad)
                                     .padding()
                                     .background(NKColors.bgSecondary(colorScheme))
@@ -111,7 +112,7 @@ struct HealthProfileView: View {
                         
                         // Blood Type
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Kan Grubu")
+                            Text(AppStrings.t("Kan Grubu"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                             
@@ -130,7 +131,7 @@ struct HealthProfileView: View {
                         // Diseases Selection
                         if !allDiseases.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Sahip Olunan Hastalıklar")
+                                Text(AppStrings.t("Sahip Olunan Hastalıklar"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(NKColors.textSecondary(colorScheme))
                                 
@@ -176,7 +177,7 @@ struct HealthProfileView: View {
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                     .padding(.trailing, 8)
                             }
-                            Text("Kaydet")
+                            Text(AppStrings.t("Kaydet"))
                                 .font(.system(size: 18, weight: .bold))
                         }
                         .foregroundColor(.white)
@@ -205,9 +206,7 @@ struct HealthProfileView: View {
                 try? await loadDiseases()
             }
         }
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Bilgi"), message: Text(alertMessage), dismissButton: .default(Text("Tamam")))
-        }
+        .toast(isPresented: $showAlert, message: alertMessage, isSuccess: alertIsSuccess)
     }
     
     private func loadDiseases() async throws {
@@ -257,14 +256,18 @@ struct HealthProfileView: View {
                 
                 await MainActor.run {
                     isSaving = false
-                    alertMessage = "Bilgileriniz başarıyla güncellendi."
+                    alertMessage = AppStrings.t("Bilgileriniz başarıyla güncellendi.")
+                    alertIsSuccess = true
                     showAlert = true
                 }
             } catch {
                 await MainActor.run {
-                    isSaving = false
-                    alertMessage = "Güncelleme sırasında bir hata oluştu: \(error.localizedDescription)"
-                    showAlert = true
+                    if !Task.isCancelled {
+                        isSaving = false
+                        alertMessage = AppStrings.t("Güncelleme sırasında bir hata oluştu") + ": \(error.localizedDescription)"
+                        alertIsSuccess = false
+                        showAlert = true
+                    }
                 }
             }
         }

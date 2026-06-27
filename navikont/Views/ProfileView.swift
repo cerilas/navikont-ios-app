@@ -5,7 +5,8 @@ struct ProfileView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
-    @EnvironmentObject var themeManager: ThemeManager
+    @ObservedObject var themeManager = ThemeManager.shared
+    @AppStorage("app_language") private var appLanguage: String = "system"
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var selectedItem: PhotosPickerItem?
@@ -86,7 +87,7 @@ struct ProfileView: View {
                                 Image(systemName: "paintbrush.fill")
                                     .foregroundColor(primaryColor)
                                     .font(.system(size: 14, weight: .semibold))
-                                Text("Görünüm")
+                                Text(AppStrings.t("Görünüm"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(NKColors.textSecondary(colorScheme))
                                 Spacer()
@@ -126,33 +127,61 @@ struct ProfileView: View {
                             .padding(.horizontal, 20)
                         }
                         
+                        // Language Picker Section
+                        VStack(spacing: 12) {
+                            HStack {
+                                Image(systemName: "globe")
+                                    .foregroundColor(primaryColor)
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text(AppStrings.t("Uygulama Dili"))
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(NKColors.textSecondary(colorScheme))
+                                Spacer()
+                                
+                                Picker(AppStrings.t("Dil"), selection: $appLanguage) {
+                                    Text(AppStrings.t("Sistem")).tag("system")
+                                    Text("Türkçe").tag("tr")
+                                    Text("English").tag("en")
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .tint(primaryColor)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(NKColors.glassBackground(colorScheme))
+                            )
+                            .padding(.horizontal, 20)
+                        }
+                        
                         // Settings List
                         VStack(spacing: 20) {
                             ProfileNavigationRow(
                                 icon: "heart.text.square.fill", color: primaryColor,
-                                title: "Sağlık ve Fiziksel Bilgiler", subtitle: "Boy, kilo, kan grubu",
+                                title: AppStrings.t("Sağlık ve Fiziksel Bilgiler"), subtitle: AppStrings.t("Boy, kilo, kan grubu"),
                                 destination: AnyView(HealthProfileView())
                             )
                             
                             ProfileNavigationRow(
                                 icon: "bell.badge.fill", color: .orange,
-                                title: "Bildirimler", subtitle: "Açık",
+                                title: AppStrings.t("Bildirimler"), subtitle: AppStrings.t("Açık"),
                                 destination: AnyView(NotificationSettingsView())
                             )
                             
                             ProfileNavigationRow(
                                 icon: "lock.shield.fill", color: .green,
-                                title: "Şifre ve Güvenlik", subtitle: "Şifre değiştir",
+                                title: AppStrings.t("Şifre ve Güvenlik"), subtitle: AppStrings.t("Şifre değiştir"),
                                 destination: AnyView(ChangePasswordView())
                             )
                             ProfileNavigationRow(
                                 icon: "doc.text.fill", color: .blue,
-                                title: "Gizlilik Politikası", subtitle: "KVKK metni",
+                                title: AppStrings.t("Gizlilik Politikası"), subtitle: AppStrings.t("KVKK metni"),
                                 destination: AnyView(PrivacyPolicyView())
                             )
                             ProfileNavigationRow(
                                 icon: "questionmark.circle.fill", color: .purple,
-                                title: "Yardım Merkezi", subtitle: "Sık sorulan sorular",
+                                title: AppStrings.t("Yardım Merkezi"), subtitle: AppStrings.t("Sık sorulan sorular"),
                                 destination: AnyView(HelpCenterView())
                             )
                         }
@@ -170,7 +199,7 @@ struct ProfileView: View {
                             HStack(spacing: 12) {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
                                     .font(.system(size: 18, weight: .bold))
-                                Text("Çıkış Yap")
+                                Text(AppStrings.t("Çıkış Yap"))
                                     .font(.system(size: 18, weight: .bold))
                             }
                             .foregroundColor(.white)
@@ -184,7 +213,7 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal, 20)
                         
-                        Text("NaviKont v1.0.0")
+                        Text(AppStrings.t("NaviKont v1.0.0"))
                             .font(.system(size: 13))
                             .foregroundColor(NKColors.textTertiary(colorScheme))
                             .padding(.bottom, 20)
@@ -205,7 +234,7 @@ struct ProfileView: View {
         }
         .preferredColorScheme(themeManager.currentMode.colorScheme)
         .alert(isPresented: $showingAlert) {
-            Alert(title: Text("Bilgi"), message: Text(alertMessage), dismissButton: .default(Text("Tamam")))
+            Alert(title: Text(AppStrings.t("Bilgi")), message: Text(alertMessage), dismissButton: .default(Text(AppStrings.t("Tamam"))))
         }
         .onChange(of: selectedItem) { newItem in
             Task {
@@ -232,7 +261,7 @@ struct ProfileView: View {
             isUploadingImage = false
         } catch {
             isUploadingImage = false
-            showAlert(message: "Resim yüklenirken bir hata oluştu: \(error.localizedDescription)")
+            showAlert(message: AppStrings.t("Resim yüklenirken bir hata oluştu") + ": \(error.localizedDescription)")
         }
     }
     

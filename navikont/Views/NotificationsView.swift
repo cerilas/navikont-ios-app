@@ -102,7 +102,7 @@ struct NotificationsView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                         
-                        Button("Tekrar Dene") {
+                        Button(AppStrings.t("Tekrar Dene")) {
                             Task { await viewModel.fetchNotifications() }
                         }
                         .foregroundColor(primaryColor)
@@ -115,7 +115,7 @@ struct NotificationsView: View {
                         Image(systemName: "bell.slash.fill")
                             .font(.system(size: 50))
                             .foregroundColor(NKColors.textTertiary(colorScheme).opacity(0.5))
-                        Text("Henüz hiç bildiriminiz yok.")
+                        Text(AppStrings.t("Henüz hiç bildiriminiz yok."))
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(NKColors.textSecondary(colorScheme))
                     }
@@ -145,7 +145,7 @@ struct NotificationsView: View {
                 }
             }
         }
-        .navigationTitle("Bildirimler")
+        .navigationTitle(AppStrings.t("Bildirimler"))
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.fetchNotifications()
@@ -209,7 +209,7 @@ struct NotificationRow: View {
     
     private func timeAgo(from date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = AppStrings.currentLocale
         formatter.unitsStyle = .short
         return formatter.localizedString(for: date, relativeTo: Date())
     }
@@ -268,7 +268,7 @@ struct NotificationDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Kapat") {
+                    Button(AppStrings.t("Kapat")) {
                         dismiss()
                     }
                     .foregroundColor(Color(hex: "06B6D4"))
@@ -280,7 +280,7 @@ struct NotificationDetailView: View {
     
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = AppStrings.currentLocale
         formatter.dateStyle = .long
         formatter.timeStyle = .short
         return formatter.string(from: date)

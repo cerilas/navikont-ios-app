@@ -24,7 +24,7 @@ struct JourneyCalendarView: View {
         
         let displayFormatter = DateFormatter()
         displayFormatter.dateFormat = "MMMM yyyy"
-        displayFormatter.locale = Locale(identifier: "tr_TR")
+        displayFormatter.locale = AppStrings.currentLocale
         
         var groups: [String: [CalendarDay]] = [:]
         
@@ -58,11 +58,11 @@ struct JourneyCalendarView: View {
                     VStack(spacing: 30) {
                         // Header
                         VStack(spacing: 8) {
-                            Text("Program Takvimi")
+                            Text(AppStrings.t("Program Takvimi"))
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(NKColors.textPrimary(colorScheme))
                             
-                            Text("Programa katılımınızdan itibaren ilerlemeniz")
+                            Text(AppStrings.t("Programa katılımınızdan itibaren ilerlemeniz"))
                                 .font(.system(size: 15))
                                 .foregroundColor(NKColors.textSecondary(colorScheme))
                                 .multilineTextAlignment(.center)
@@ -110,7 +110,7 @@ struct JourneyCalendarView: View {
             VStack(spacing: 8) {
                 // Weekday headers
                 HStack(spacing: 8) {
-                    let weekdays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+                    let weekdays = getLocalizedWeekdays()
                     ForEach(weekdays, id: \.self) { day in
                         Text(day)
                             .font(.system(size: 13, weight: .semibold))
@@ -206,7 +206,7 @@ struct JourneyCalendarView: View {
                             .frame(width: 6, height: 6)
                     }
                     
-                    Text("\(day.dayNumber).G")
+                    Text("\(day.dayNumber). \(AppStrings.t("G"))")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundColor(NKColors.textSecondary(colorScheme))
                 }
@@ -219,9 +219,9 @@ struct JourneyCalendarView: View {
     
     private var legendSection: some View {
         HStack(spacing: 20) {
-            legendItem(color: NKColors.success, text: "Tamamlandı")
-            legendItem(color: Color.red.opacity(0.8), text: "Eksik")
-            legendItem(color: NKColors.accentTeal, text: "Bugün")
+            legendItem(color: NKColors.success, text: AppStrings.t("Tamamlandı"))
+            legendItem(color: Color.red.opacity(0.8), text: AppStrings.t("Eksik"))
+            legendItem(color: NKColors.accentTeal, text: AppStrings.t("Bugün"))
         }
         .padding(.top, 20)
     }
@@ -238,6 +238,18 @@ struct JourneyCalendarView: View {
     }
     
     // MARK: - Helpers
+    
+    private func getLocalizedWeekdays() -> [String] {
+        var cal = Calendar.current
+        cal.locale = AppStrings.currentLocale
+        // shortWeekdaySymbols starts from Sunday, e.g. ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        let symbols = cal.shortWeekdaySymbols
+        if symbols.count == 7 {
+            // Shift to start with Monday
+            return Array(symbols[1...]) + [symbols[0]]
+        }
+        return ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+    }
     
     private func calculateOffset(for day: CalendarDay?) -> Int {
         guard let day = day else { return 0 }
