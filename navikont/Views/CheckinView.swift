@@ -231,7 +231,7 @@ struct CheckinView: View {
                 }) {
                     Text(AppStrings.t("Devam Et"))
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(NKColors.bgPrimary(colorScheme))
+                        .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
