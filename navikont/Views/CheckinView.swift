@@ -212,7 +212,7 @@ struct CheckinView: View {
                 VStack(spacing: 12) {
                     Text(AppStrings.t("Check-in Tamamlandı!"))
                         .font(.system(size: 26, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     
                     if viewModel.streakDay > 0 {
                         StreakBadge(count: viewModel.streakDay)
@@ -221,7 +221,7 @@ struct CheckinView: View {
                     
                     Text(AppStrings.t("Günlük verileriniz kaydedildi."))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                         .multilineTextAlignment(.center)
                 }
                 
@@ -231,13 +231,13 @@ struct CheckinView: View {
                 }) {
                     Text(AppStrings.t("Devam Et"))
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(
                             Capsule()
-                                .fill(Color.white)
-                                .shadow(color: .white.opacity(0.2), radius: 10, y: 5)
+                                .fill(NKColors.tealGradient)
+                                .shadow(color: NKColors.accentTeal.opacity(0.4), radius: 10, y: 5)
                         )
                 }
                 .padding(.bottom, 8)

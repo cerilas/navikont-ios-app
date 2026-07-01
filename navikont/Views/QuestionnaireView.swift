@@ -214,11 +214,11 @@ struct QuestionnaireView: View {
                 VStack(spacing: 12) {
                     Text(AppStrings.t("Anket Tamamlandı"))
                         .font(.system(size: 26, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
                     
                     Text(AppStrings.t("Cevaplarınız güvenle kaydedildi."))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
                         .multilineTextAlignment(.center)
                 }
             }
