@@ -32,17 +32,13 @@ struct LoginView: View {
                                 .frame(width: 120, height: 120)
                                 .blur(radius: 30)
                             
-                            // Icon container
-                            ZStack {
-                                Circle()
-                                    .fill(NKColors.primaryGradient)
-                                    .frame(width: 88, height: 88)
-                                
-                                Image(systemName: "heart.text.clipboard.fill")
-                                    .font(.system(size: 36))
-                                    .foregroundColor(.white)
-                            }
-                            .shadow(color: NKColors.primaryGradientStart.opacity(0.4), radius: 20, y: 10)
+                            // App Logo
+                            Image("AppLogo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 88, height: 88)
+                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .shadow(color: NKColors.primaryGradientStart.opacity(0.4), radius: 20, y: 10)
                         }
                         .scaleEffect(logoScale)
                         .opacity(logoOpacity)
