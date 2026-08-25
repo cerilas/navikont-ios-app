@@ -1,5 +1,10 @@
 import Foundation
 
+// MARK: - Auth Notifications
+extension Notification.Name {
+    static let sessionExpired = Notification.Name("sessionExpired")
+}
+
 // MARK: - Network Errors
 
 enum NetworkError: LocalizedError {
@@ -22,7 +27,7 @@ enum NetworkError: LocalizedError {
         case .serverError(let code, let message):
             return message ?? AppStrings.t("Sunucu hatası") + " (\(code))"
         case .unauthorized:
-            return "Oturum süresi doldu. Lütfen tekrar giriş yapın."
+            return "Oturumunuzun süresi doldu. Güvenliğiniz için yeniden giriş yapmanız gerekmektedir."
         case .networkFailure(let error):
             return AppStrings.t("Bağlantı hatası") + ": \(error.localizedDescription)"
         case .unknown:
@@ -152,11 +157,11 @@ final class NetworkManager: @unchecked Sendable {
             let errorMsg = message?["error"] as? String ?? message?["message"] as? String
             
             if httpResponse.statusCode == 401 {
-                if let errorMsg = errorMsg, !errorMsg.isEmpty {
-                    throw NetworkError.serverError(401, errorMsg)
-                } else {
-                    throw NetworkError.unauthorized
+                // Notify the app to auto-logout
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .sessionExpired, object: nil)
                 }
+                throw NetworkError.unauthorized
             }
             throw NetworkError.serverError(httpResponse.statusCode, errorMsg)
         }
@@ -213,11 +218,11 @@ final class NetworkManager: @unchecked Sendable {
             let errorMsg = errorBody?["error"] as? String ?? errorBody?["message"] as? String
             
             if httpResponse.statusCode == 401 {
-                if let errorMsg = errorMsg, !errorMsg.isEmpty {
-                    throw NetworkError.serverError(401, errorMsg)
-                } else {
-                    throw NetworkError.unauthorized
+                // Notify the app to auto-logout
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .sessionExpired, object: nil)
                 }
+                throw NetworkError.unauthorized
             }
             throw NetworkError.serverError(httpResponse.statusCode, errorMsg)
         }

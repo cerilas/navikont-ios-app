@@ -11,7 +11,20 @@ class AuthService: ObservableObject {
 
     private let networkManager = NetworkManager.shared
 
+    private var sessionObserver: NSObjectProtocol?
+
     init() {
+        // Listen for 401 session expired from NetworkManager
+        sessionObserver = NotificationCenter.default.addObserver(
+            forName: .sessionExpired,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self, self.isAuthenticated else { return }
+            self.logout()
+            self.errorMessage = "Oturumunuzun süresi doldu. Güvenliğiniz için yeniden giriş yapmanız gerekmektedir."
+        }
+
         if let token = UserDefaults.standard.string(forKey: "authToken") {
             networkManager.setToken(token)
             self.isAuthenticated = true
@@ -31,6 +44,12 @@ class AuthService: ObservableObject {
                     try? await networkManager.sendDeviceToken(deviceToken)
                 }
             }
+        }
+    }
+
+    deinit {
+        if let observer = sessionObserver {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
 
