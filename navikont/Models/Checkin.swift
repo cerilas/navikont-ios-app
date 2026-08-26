@@ -27,7 +27,7 @@ struct CheckinField: Codable, Identifiable, Sendable {
 }
 
 struct CheckinFieldOption: Codable, Identifiable, Sendable {
-    let id: UUID
+    let id: String
     let label: String
     let value: String?
     let sortOrder: Int?
