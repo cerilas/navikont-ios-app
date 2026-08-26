@@ -361,7 +361,7 @@ struct CheckinFieldCard: View {
     private var singleChoiceView: some View {
         VStack(spacing: 8) {
             ForEach(field.options ?? [], id: \.id) { option in
-                let optionVal = option.value ?? option.id.uuidString
+                let optionVal = option.value ?? option.id
                 Button(action: { onValue(optionVal) }) {
                     HStack {
                         Text(option.label)
