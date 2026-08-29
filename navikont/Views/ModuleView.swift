@@ -1,6 +1,28 @@
 import SwiftUI
 
 struct ModuleView: View {
+    let task: JourneyStep
+    @ObservedObject var viewModel: DashboardViewModel
+    var clinicalState: PatientClinicalState? = nil
+    var onComplete: (() -> Void)? = nil
+
+    var body: some View {
+        if shouldUseClinicalShell {
+            ClinicalScreenRunner(initialState: clinicalState) {
+                onComplete?()
+                Task { await viewModel.reloadDashboard() }
+            }
+        } else {
+            LegacyModuleView(task: task, viewModel: viewModel, onComplete: onComplete)
+        }
+    }
+
+    private var shouldUseClinicalShell: Bool {
+        clinicalState?.usesClinicalShell == true && viewModel.shouldUseClinicalRunner(for: task)
+    }
+}
+
+private struct LegacyModuleView: View {
     @Environment(\.colorScheme) var colorScheme
     let task: JourneyStep
     @ObservedObject var viewModel: DashboardViewModel

@@ -9,6 +9,9 @@ struct DashboardResponse: Decodable, Sendable {
     let progress: ProgressPayload?
     let streak: StreakPayload?
     let unreadNotificationCount: Int?
+    let clinicalState: PatientClinicalState?
+    let gates: [ClinicalGate]?
+    let activePlanSummary: ActivePlanSummary?
 
     var streakCount: Int { streak?.currentStreak ?? 0 }
     var todayTasks: [JourneyStep]? { today?.tasks }

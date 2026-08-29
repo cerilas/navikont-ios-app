@@ -137,6 +137,14 @@ final class NetworkManager: @unchecked Sendable {
         return try await execute(request)
     }
 
+    func patch<T: Decodable>(_ path: String, body: [String: Any]? = nil) async throws -> T {
+        var request = try buildRequest(path: path, method: "PATCH")
+        if let body = body {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        }
+        return try await execute(request)
+    }
+
     func delete<T: Decodable>(_ path: String) async throws -> T {
         let request = try buildRequest(path: path, method: "DELETE")
         return try await execute(request)

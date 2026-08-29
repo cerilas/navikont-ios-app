@@ -12,6 +12,9 @@ class DashboardViewModel: ObservableObject {
     @Published var selectedDayDetails: CalendarDayDetailsResponse?
     @Published var isDayDetailsLoading: Bool = false
     @Published var unreadNotifications: Int = 0
+    @Published var clinicalState: PatientClinicalState?
+    @Published var clinicalGates: [ClinicalGate] = []
+    @Published var activePlanSummary: ActivePlanSummary?
 
     var allRequiredTasksCompleted: Bool {
         let requiredTasks = todayTasks.filter { $0.required }
@@ -49,6 +52,9 @@ class DashboardViewModel: ObservableObject {
                 self.todayTasks = response.todayTasks ?? []
                 self.streakCount = response.streakCount
                 self.unreadNotifications = response.unreadNotifications
+                self.clinicalState = response.clinicalState
+                self.clinicalGates = response.gates ?? []
+                self.activePlanSummary = response.activePlanSummary
                 self.isLoading = false
             }
         } catch let error as NetworkError {
@@ -128,6 +134,21 @@ class DashboardViewModel: ObservableObject {
         if let index = todayTasks.firstIndex(where: { $0.id == taskId }) {
             todayTasks[index].isCompleted = true
         }
+    }
+
+    func shouldUseClinicalRunner(for task: JourneyStep) -> Bool {
+        guard clinicalState?.usesClinicalShell == true else { return false }
+        let clinicalTypes: Set<String> = [
+            "clinical", "clinical_asset", "bladder_diary", "treatment_plan",
+            "teach_back", "urgency_simulation", "m5_record", "clinical_review"
+        ]
+        if clinicalTypes.contains(task.module.moduleType) { return true }
+        if case .dictionary(let content) = task.module.content {
+            return content["contentId"] != nil ||
+                content["clinicalModule"] != nil ||
+                content["clinicalScreen"] != nil
+        }
+        return false
     }
 
     func completeModule(enrollmentId: UUID, moduleVersionId: UUID, resultData: [String: Any]? = nil) async -> Bool {

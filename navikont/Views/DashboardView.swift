@@ -16,6 +16,7 @@ struct DashboardView: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var isRefreshing = false
     @State private var selectedTask: JourneyStep? = nil
+    @State private var showClinicalProgram = false
     
     var body: some View {
         Group {
@@ -52,6 +53,10 @@ struct DashboardView: View {
                                 // Progress Card
                                 progressCard(enrollment: enrollment)
                             }
+
+                            if viewModel.clinicalState?.usesClinicalShell == true {
+                                clinicalProgramCard
+                            }
                             
                             // Today's Tasks (or Pending Review card)
                             tasksSection
@@ -69,9 +74,17 @@ struct DashboardView: View {
                 ProfileView()
             }
             .fullScreenCover(item: $selectedTask) { task in
-                ModuleView(task: task, viewModel: viewModel, onComplete: {
-                    selectedTask = nil
-                })
+                ModuleView(
+                    task: task,
+                    viewModel: viewModel,
+                    clinicalState: viewModel.clinicalState,
+                    onComplete: { selectedTask = nil }
+                )
+            }
+            .fullScreenCover(isPresented: $showClinicalProgram) {
+                ClinicalScreenRunner(initialState: viewModel.clinicalState) {
+                    Task { await viewModel.reloadDashboard() }
+                }
             }
         }
         .navigationViewStyle(.stack)
@@ -297,6 +310,9 @@ struct DashboardView: View {
     }
     
     private var isPendingReview: Bool {
+        if viewModel.clinicalState?.usesClinicalShell == true {
+            return viewModel.clinicalState?.state == .awaitingReview
+        }
         // No journey assigned yet — waiting for manual or rule-based assignment
         guard viewModel.activeEnrollment?.journeyId == nil else { return false }
         return viewModel.todayTasks.count == 1 &&
@@ -329,7 +345,7 @@ struct DashboardView: View {
                 }
                 .padding(.horizontal, 20)
                 
-                if !viewModel.todayTasks.isEmpty {
+                if viewModel.clinicalState?.usesClinicalShell != true && !viewModel.todayTasks.isEmpty {
                     Button(action: {
                         if let enrollment = viewModel.activeEnrollment {
                             viewModel.updateCurrentDay(to: (enrollment.currentDay ?? 1) + 1)
@@ -355,6 +371,44 @@ struct DashboardView: View {
         }
         .offset(y: tasksAppeared ? 0 : 40)
         .opacity(tasksAppeared ? 1 : 0)
+    }
+
+    private var clinicalProgramCard: some View {
+        Button {
+            showClinicalProgram = true
+        } label: {
+            HStack(spacing: 16) {
+                GradientIconBadge(icon: "cross.case.fill", gradient: NKColors.tealGradient, size: 52)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Klinik Program")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(NKColors.textPrimary(colorScheme))
+                    Text(clinicalProgramSubtitle)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(NKColors.textSecondary(colorScheme))
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(NKColors.textTertiary(colorScheme))
+            }
+            .padding(16)
+            .glassCard(cornerRadius: 16)
+            .padding(.horizontal, 20)
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+
+    private var clinicalProgramSubtitle: String {
+        if let planTitle = viewModel.activePlanSummary?.title {
+            return planTitle
+        }
+        switch viewModel.clinicalState?.state {
+        case .awaitingReview: return "Klinik değerlendirme bekleniyor"
+        case .safetyHold: return "Güvenlik değerlendirmesi nedeniyle beklemede"
+        case .completed: return "Klinik program tamamlandı"
+        default: return "\(viewModel.clinicalState?.currentModule?.rawValue ?? "") adımınıza devam edin"
+        }
     }
     
     // MARK: - Pending Review Card
