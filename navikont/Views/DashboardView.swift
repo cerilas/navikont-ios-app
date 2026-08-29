@@ -19,7 +19,8 @@ struct DashboardView: View {
     
     var body: some View {
         Group {
-            if let enrollment = viewModel.activeEnrollment, enrollment.status == "paused" || enrollment.status == "cancelled" {
+            if let enrollment = viewModel.activeEnrollment,
+               enrollment.status == "paused" || enrollment.status == "cancelled" || enrollment.status == "not_eligible" {
                 StatusBlockedView(status: enrollment.status)
             } else {
                 NavigationView {
@@ -728,71 +729,127 @@ struct StatusBlockedView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authService: AuthService
     let status: String
-    
+
+    private var isNotEligible: Bool { status == "not_eligible" }
+    private var isCancelled: Bool { status == "cancelled" }
+
+    private var accentColor: Color {
+        isNotEligible ? NKColors.accentTeal : (isCancelled ? .red : .orange)
+    }
+
+    private var iconName: String {
+        isNotEligible ? "stethoscope" : (isCancelled ? "xmark.octagon.fill" : "pause.circle.fill")
+    }
+
+    private var title: String {
+        isNotEligible
+            ? AppStrings.t("Şu An Uygun Değilsiniz")
+            : (isCancelled ? AppStrings.t("Programınız İptal Edildi") : AppStrings.t("Programınız Donduruldu"))
+    }
+
+    private var description: String {
+        isNotEligible
+            ? AppStrings.t("Değerlendirme sonucunuz mevcut tedavi programlarımızın hiçbirine uymuyor. Lütfen doktorunuza başvurun; sizin için en uygun adımı birlikte belirleyecektir.")
+            : (isCancelled
+               ? AppStrings.t("Tedavi programınız sonlandırılmıştır. Lütfen detaylı bilgi veya yeni bir planlama için klinik ekibinizle iletişime geçiniz.")
+               : AppStrings.t("Programınıza şu an erişilemiyor. Detaylı bilgi veya destek için klinik ekibinizle iletişime geçebilirsiniz."))
+    }
+
     var body: some View {
         ZStack {
-            // Arka Plan
             Color.black.ignoresSafeArea()
-            
-            // Görsel / Grafik arkaplan
+
+            // Ambient glow
             Circle()
-                .fill(status == "cancelled" ? Color.red.opacity(0.3) : Color.blue.opacity(0.3))
-                .frame(width: 300, height: 300)
-                .blur(radius: 60)
-                .offset(y: -100)
-            
-            VStack(spacing: 30) {
+                .fill(accentColor.opacity(isNotEligible ? 0.18 : 0.3))
+                .frame(width: 340, height: 340)
+                .blur(radius: 70)
+                .offset(y: -120)
+
+            VStack(spacing: 0) {
                 Spacer()
-                
-                // İkon
+
+                // Icon badge
                 ZStack {
                     Circle()
-                        .fill(status == "cancelled" ? Color.red.opacity(0.2) : Color.orange.opacity(0.2))
-                        .frame(width: 100, height: 100)
-                    
-                    Image(systemName: status == "cancelled" ? "xmark.octagon.fill" : "pause.circle.fill")
-                        .font(.system(size: 50))
-                        .foregroundColor(status == "cancelled" ? .red : .orange)
+                        .fill(accentColor.opacity(0.15))
+                        .frame(width: 120, height: 120)
+                    Circle()
+                        .stroke(accentColor.opacity(0.3), lineWidth: 1.5)
+                        .frame(width: 120, height: 120)
+                    Image(systemName: iconName)
+                        .font(.system(size: 52, weight: .light))
+                        .foregroundColor(accentColor)
                 }
-                
-                // Başlık
-                Text(status == "cancelled" ? "Programınız İptal Edildi" : "Programınız Donduruldu")
-                    .font(.title)
-                    .fontWeight(.bold)
+                .padding(.bottom, 32)
+
+                // Title
+                Text(title)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
-                
-                // Açıklama
-                Text(status == "cancelled" 
-                     ? "Tedavi programınız sonlandırılmıştır. Lütfen detaylı bilgi veya yeni bir planlama için klinik ekibinizle iletişime geçiniz." 
-                     : "Programınıza şu an erişilemiyor. Detaylı bilgi veya destek için klinik ekibinizle iletişime geçebilirsiniz.")
-                    .font(.body)
-                    .foregroundColor(.gray)
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 16)
+
+                // Description
+                Text(description)
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundColor(Color.white.opacity(0.6))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 30)
-                
+                    .lineSpacing(4)
+                    .padding(.horizontal, 36)
+
+                if isNotEligible {
+                    // Info card
+                    HStack(spacing: 12) {
+                        Image(systemName: "info.circle")
+                            .foregroundColor(NKColors.accentTeal.opacity(0.8))
+                            .font(.system(size: 18))
+                        Text(AppStrings.t("Doktorunuz sizi uygun bir programa yönlendirebilir veya puan aralığını güncelleyebilir."))
+                            .font(.system(size: 13))
+                            .foregroundColor(Color.white.opacity(0.5))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(NKColors.accentTeal.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                    .padding(.horizontal, 28)
+                    .padding(.top, 28)
+                }
+
                 Spacer()
-                
-                // Çıkış Butonu
+
+                // Logout button
                 Button(action: {
                     withAnimation {
                         authService.logout()
                     }
                 }) {
-                    Text(AppStrings.t("Oturumu Kapat"))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(NKColors.glassBackground(colorScheme))
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
-                        )
+                    HStack(spacing: 8) {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                        Text(AppStrings.t("Oturumu Kapat"))
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.white.opacity(0.08))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            )
+                    )
                 }
-                .padding(.horizontal, 30)
-                .padding(.bottom, 50)
+                .padding(.horizontal, 28)
+                .padding(.bottom, 52)
             }
         }
     }
