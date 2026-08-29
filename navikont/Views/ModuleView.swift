@@ -549,40 +549,56 @@ struct ModuleView: View {
             Text(AppStrings.t("Lütfen aşağıdaki ölçümleri giriniz:"))
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(NKColors.textSecondary(colorScheme))
-                
+
             if let raw = task.module.content?.textValue,
                let data = raw.data(using: .utf8),
                let parsed = try? JSONDecoder().decode(MeasurementContentData.self, from: data),
                let metrics = parsed.metrics {
-                
+
                 ForEach(metrics) { metric in
                     VStack(alignment: .leading, spacing: 8) {
                         Text("\(metric.name) (\(metric.unit))")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                        
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
+
                         if metric.type == "boolean" {
-                            Toggle("Evet / Hayır", isOn: Binding(
+                            Toggle(AppStrings.t("Evet / Hayır"), isOn: Binding(
                                 get: { measurementValues[metric.name] == "true" },
                                 set: { measurementValues[metric.name] = $0 ? "true" : "false" }
                             ))
                             .tint(NKColors.accentTeal)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                         } else {
-                            TextField(AppStrings.t("Değer girin"), text: Binding(
-                                get: { measurementValues[metric.name] ?? "" },
-                                set: { measurementValues[metric.name] = $0 }
-                            ))
+                            TextField(
+                                AppStrings.t("Değer girin"),
+                                text: Binding(
+                                    get: { measurementValues[metric.name] ?? "" },
+                                    set: { measurementValues[metric.name] = $0 }
+                                )
+                            )
                             .keyboardType(metric.type == "integer" ? .numberPad : .decimalPad)
+                            .foregroundColor(NKColors.textPrimary(colorScheme))
                             .padding()
-                            .background(NKColors.glassBackground(colorScheme))
-                            .cornerRadius(12)
-                            .foregroundColor(.white)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(NKColors.bgCard(colorScheme))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(NKColors.glassBorder(colorScheme), lineWidth: 1)
+                                    )
+                            )
                         }
                     }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(NKColors.bgCard(colorScheme))
+                            .shadow(color: NKColors.cardShadow(colorScheme), radius: 6, y: 2)
+                    )
                 }
             } else {
                 Text(AppStrings.t("Ölçüm ayarları bulunamadı."))
-                    .foregroundColor(.gray)
+                    .foregroundColor(NKColors.textSecondary(colorScheme))
             }
         }
     }
