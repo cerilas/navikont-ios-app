@@ -805,7 +805,7 @@ struct StatusBlockedView: View {
                         Image(systemName: "info.circle")
                             .foregroundColor(NKColors.accentTeal.opacity(0.8))
                             .font(.system(size: 18))
-                        Text(AppStrings.t("Doktorunuz sizi uygun bir programa yönlendirebilir veya puan aralığını güncelleyebilir."))
+                        Text(AppStrings.t("Doktorunuz sizin için en uygun adımı belirleyecektir. Uygulamaya tekrar erişim sağlandığında bilgilendirileceksiniz."))
                             .font(.system(size: 13))
                             .foregroundColor(Color.white.opacity(0.5))
                             .fixedSize(horizontal: false, vertical: true)
