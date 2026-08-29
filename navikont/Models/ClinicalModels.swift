@@ -132,6 +132,7 @@ struct PatientClinicalState: Codable, Sendable {
     let enrollmentId: UUID?
     let screens: [ClinicalScreen]?
     let updatedAt: Date?
+    let testModeEnabled: Bool?
 
     var usesClinicalShell: Bool {
         enabled != false && mode?.lowercased() != "legacy" && state != .legacy
@@ -186,6 +187,12 @@ enum ClinicalStorageState: String, Codable, Sendable {
     case serverStored = "SERVER_STORED"
 }
 
+enum ClinicalSyncState: Equatable, Sendable {
+    case idle
+    case syncing
+    case failed(String)
+}
+
 enum BladderDiaryEventType: String, Codable, CaseIterable, Sendable {
     case void
     case fluid
@@ -201,6 +208,20 @@ struct BladderDiarySession: Codable, Identifiable, Sendable {
     let endsAt: Date?
     let submittedAt: Date?
     let events: [BladderDiaryEvent]?
+
+    var resolvedEndsAt: Date {
+        endsAt ?? startedAt.addingTimeInterval(72 * 60 * 60)
+    }
+
+    var isEditable: Bool {
+        ["active", "open", "in_progress", "draft"].contains(status.lowercased())
+    }
+
+    func canSubmit(events: [BladderDiaryEvent], now: Date = Date()) -> Bool {
+        isEditable &&
+            now >= resolvedEndsAt &&
+            events.contains { $0.sessionId == id && $0.storageState == .serverStored }
+    }
 }
 
 struct BladderDiaryEvent: Codable, Identifiable, Sendable {
@@ -212,6 +233,7 @@ struct BladderDiaryEvent: Codable, Identifiable, Sendable {
     let amountMl: Double?
     let urgency: Int?
     let leakageAmount: String?
+    let fluidType: String?
     let measured: Bool
     let retrospective: Bool
     let note: String?
@@ -226,6 +248,7 @@ struct BladderDiaryEvent: Codable, Identifiable, Sendable {
         amountMl: Double? = nil,
         urgency: Int? = nil,
         leakageAmount: String? = nil,
+        fluidType: String? = nil,
         measured: Bool = true,
         retrospective: Bool = false,
         note: String? = nil,
@@ -239,6 +262,7 @@ struct BladderDiaryEvent: Codable, Identifiable, Sendable {
         self.amountMl = amountMl
         self.urgency = urgency
         self.leakageAmount = leakageAmount
+        self.fluidType = fluidType
         self.measured = measured
         self.retrospective = retrospective
         self.note = note
@@ -252,9 +276,92 @@ struct BladderDiaryEventMutation: Codable, Sendable {
     let amountMl: Double?
     let urgency: Int?
     let leakageAmount: String?
+    let fluidType: String?
     let measured: Bool?
     let retrospective: Bool?
     let note: String?
+}
+
+struct BladderDiaryDraft: Equatable, Sendable {
+    var type: BladderDiaryEventType
+    var occurredAt: Date
+    var amountText: String
+    var urgency: Int
+    var leakageAmount: String
+    var fluidType: String
+    var measured: Bool
+    var retrospective: Bool
+    var note: String
+
+    init(
+        type: BladderDiaryEventType,
+        occurredAt: Date = Date(),
+        amountText: String = "",
+        urgency: Int = 3,
+        leakageAmount: String = "",
+        fluidType: String = "",
+        measured: Bool = true,
+        retrospective: Bool = false,
+        note: String = ""
+    ) {
+        self.type = type
+        self.occurredAt = occurredAt
+        self.amountText = amountText
+        self.urgency = urgency
+        self.leakageAmount = leakageAmount
+        self.fluidType = fluidType
+        self.measured = measured
+        self.retrospective = retrospective
+        self.note = note
+    }
+
+    var validationMessage: String? {
+        switch type {
+        case .void, .fluid:
+            if measured && (parsedAmount ?? 0) <= 0 {
+                return "Ölçülen kayıtlar için sıfırdan büyük bir miktar girin."
+            }
+        case .leakage:
+            if leakageAmount.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return "Kaçırma miktarını seçin."
+            }
+        case .sleepStart, .sleepEnd:
+            break
+        }
+        if retrospective && occurredAt > Date() {
+            return "Geçmiş kayıt zamanı gelecekte olamaz."
+        }
+        return nil
+    }
+
+    var parsedAmount: Double? {
+        Double(amountText.replacingOccurrences(of: ",", with: "."))
+    }
+
+    func event(sessionId: UUID, id: UUID = UUID(), recordedAt: Date = Date()) -> BladderDiaryEvent {
+        let hasMeasuredAmount = (type == .void || type == .fluid) && measured
+        return BladderDiaryEvent(
+            id: id,
+            sessionId: sessionId,
+            type: type,
+            occurredAt: retrospective ? occurredAt : recordedAt,
+            recordedAt: recordedAt,
+            amountMl: hasMeasuredAmount ? parsedAmount : nil,
+            urgency: (type == .void || type == .leakage) ? urgency : nil,
+            leakageAmount: type == .leakage ? leakageAmount.nilIfBlank : nil,
+            fluidType: type == .fluid ? fluidType.nilIfBlank : nil,
+            measured: (type == .void || type == .fluid) ? measured : false,
+            retrospective: retrospective,
+            note: note.nilIfBlank
+        )
+    }
+}
+
+private extension String {
+    var nilIfBlank: String? {
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
 }
 
 struct ClinicalPlan: Codable, Identifiable, Sendable {

@@ -26,7 +26,19 @@ struct ClinicalScreenRunner: View {
             ZStack {
                 NKColors.bgPrimary(colorScheme).ignoresSafeArea()
                 if isLoading {
-                    ProgressView("Klinik program yükleniyor…")
+                    VStack(spacing: 16) {
+                        GradientIconBadge(
+                            icon: "cross.case.fill",
+                            gradient: NKColors.tealGradient,
+                            size: 58
+                        )
+                        ProgressView().tint(NKColors.accentTeal)
+                        Text("Klinik program hazırlanıyor")
+                            .font(.system(.headline, design: .rounded, weight: .semibold))
+                            .foregroundStyle(NKColors.textSecondary(colorScheme))
+                    }
+                    .padding(28)
+                    .glassCard()
                 } else if screens.isEmpty {
                     emptyState
                 } else {
@@ -37,7 +49,11 @@ struct ClinicalScreenRunner: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Kapat") { dismiss() }
+                    Button { dismiss() } label: {
+                        Label("Kapat", systemImage: "xmark.circle.fill")
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            .foregroundStyle(NKColors.textPrimary(colorScheme))
+                    }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     SafetyHelpRouter()
@@ -51,22 +67,46 @@ struct ClinicalScreenRunner: View {
     private var screenBody: some View {
         let screen = screens[currentIndex]
         return VStack(spacing: 0) {
-            ProgressView(value: Double(currentIndex + 1), total: Double(screens.count))
-                .tint(NKColors.accentTeal)
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
+            GeometryReader { proxy in
+                let progress = CGFloat(currentIndex + 1) / CGFloat(max(screens.count, 1))
+                ZStack(alignment: .leading) {
+                    Capsule().fill(NKColors.glassBackground(colorScheme))
+                    Capsule()
+                        .fill(NKColors.tealGradient)
+                        .frame(width: proxy.size.width * progress)
+                }
+            }
+            .frame(height: 6)
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(screen.title)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                        if let subtitle = screen.subtitle {
-                            Text(subtitle).foregroundStyle(.secondary)
+                    HStack(spacing: 14) {
+                        GradientIconBadge(
+                            icon: icon(for: screen.kind),
+                            gradient: gradient(for: screen.kind),
+                            size: 50
+                        )
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(screen.title)
+                                .font(.system(.title2, design: .rounded, weight: .bold))
+                                .foregroundStyle(NKColors.textPrimary(colorScheme))
+                            if let subtitle = screen.subtitle {
+                                Text(subtitle)
+                                    .font(.subheadline)
+                                    .foregroundStyle(NKColors.textSecondary(colorScheme))
+                            }
                         }
                     }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .glassCard(cornerRadius: 18)
 
-                    ClinicalAssetView(screen: screen) {
+                    ClinicalAssetView(
+                        screen: screen,
+                        testModeEnabled: state?.testModeEnabled
+                    ) {
                         if screen.kind == .teachBack {
                             completedContentIds.insert(screen.contentId)
                             onStateChanged?()
@@ -77,64 +117,92 @@ struct ClinicalScreenRunner: View {
                     }
 
                     if let errorMessage {
-                        Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        ClinicalInlineNotice(
+                            message: errorMessage,
+                            icon: "exclamationmark.triangle.fill",
+                            color: NKColors.danger
+                        )
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(20)
                 .padding(.bottom, 90)
             }
 
-            HStack(spacing: 12) {
-                if currentIndex > 0 {
-                    Button("Geri") { move(to: currentIndex - 1) }
-                        .buttonStyle(.bordered)
-                }
-                if !screen.isRequired {
-                    Button("Atla") { move(to: min(currentIndex + 1, screens.count - 1)) }
-                        .buttonStyle(.bordered)
-                }
-                if !usesEmbeddedCompletion {
-                    Button {
-                        if isCurrentCompleted {
-                            advanceOrClose()
-                        } else {
-                            completeCurrent()
-                        }
-                    } label: {
-                        if isCompleting {
-                            ProgressView().frame(maxWidth: .infinity)
-                        } else {
-                            Text(isCurrentCompleted ? nextTitle : "Tamamla ve devam et")
-                                .frame(maxWidth: .infinity)
-                        }
+            if showsRunnerFooter(for: screen) {
+                runnerFooter(screen)
+            }
+        }
+    }
+
+    private func runnerFooter(_ screen: ClinicalScreen) -> some View {
+        VStack(spacing: 10) {
+            if !usesEmbeddedCompletion {
+                ClinicalPrimaryActionButton(
+                    title: isCurrentCompleted ? nextTitle : "Tamamla ve devam et",
+                    icon: isCurrentCompleted ? "arrow.right.circle.fill" : "checkmark.circle.fill",
+                    isLoading: isCompleting
+                ) {
+                    if isCurrentCompleted {
+                        advanceOrClose()
+                    } else {
+                        completeCurrent()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(isCompleting)
                 }
             }
-            .padding(16)
-            .background(.bar)
+            HStack(spacing: 10) {
+                if currentIndex > 0 {
+                    ClinicalSecondaryActionButton(
+                        title: "Geri",
+                        icon: "chevron.left",
+                        action: { move(to: currentIndex - 1) }
+                    )
+                }
+                if !screen.isRequired {
+                    ClinicalSecondaryActionButton(
+                        title: "Bu adımı atla",
+                        icon: "forward.fill",
+                        action: { move(to: min(currentIndex + 1, screens.count - 1)) }
+                    )
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 10)
+        .background(NKColors.bgCard(colorScheme))
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(NKColors.glassBorder(colorScheme))
+                .frame(height: 1)
         }
     }
 
     private var emptyState: some View {
         VStack(spacing: 16) {
-            Image(systemName: "hourglass")
-                .font(.system(size: 44))
-                .foregroundStyle(NKColors.accentTeal)
-            Text("Yeni adım bekleniyor").font(.title2.bold())
+            GradientIconBadge(icon: "hourglass", gradient: NKColors.coolGradient, size: 58)
+            Text("Yeni adım bekleniyor")
+                .font(.system(.title2, design: .rounded, weight: .bold))
+                .foregroundStyle(NKColors.textPrimary(colorScheme))
             Text("Klinik ekibiniz bir sonraki ekranı açtığında burada görünecek.")
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(NKColors.textSecondary(colorScheme))
             if let errorMessage {
-                Text(errorMessage).font(.caption).foregroundStyle(.orange)
+                ClinicalInlineNotice(
+                    message: errorMessage,
+                    icon: "exclamationmark.triangle.fill",
+                    color: NKColors.warning
+                )
             }
-            Button("Tekrar dene") { Task { await load() } }
-                .buttonStyle(.borderedProminent)
+            ClinicalPrimaryActionButton(
+                title: "Tekrar kontrol et",
+                icon: "arrow.clockwise",
+                action: { Task { await load() } }
+            )
         }
         .padding(30)
+        .glassCard()
+        .padding(20)
     }
 
     private var isCurrentCompleted: Bool {
@@ -151,10 +219,40 @@ struct ClinicalScreenRunner: View {
         guard !screens.isEmpty else { return false }
         return [
             ClinicalScreenKind.bladderDiary,
+            .plan,
             .teachBack,
             .urgencySimulation,
             .m5Hub
         ].contains(screens[currentIndex].kind)
+    }
+
+    private func showsRunnerFooter(for screen: ClinicalScreen) -> Bool {
+        currentIndex > 0 || !screen.isRequired || !usesEmbeddedCompletion
+    }
+
+    private func icon(for kind: ClinicalScreenKind) -> String {
+        switch kind {
+        case .article: return "doc.richtext.fill"
+        case .audio: return "waveform.circle.fill"
+        case .video: return "play.circle.fill"
+        case .bladderDiary: return "drop.circle.fill"
+        case .plan: return "doc.text.fill"
+        case .teachBack: return "checkmark.bubble.fill"
+        case .urgencySimulation: return "figure.mind.and.body"
+        case .m5Hub: return "figure.walk.motion"
+        case .m6Review: return "stethoscope"
+        case .m7Activation: return "checkmark.seal.fill"
+        case .m8Closure: return "flag.checkered"
+        case .unknown: return "cross.case.fill"
+        }
+    }
+
+    private func gradient(for kind: ClinicalScreenKind) -> LinearGradient {
+        switch kind {
+        case .video, .m5Hub: return NKColors.warmGradient
+        case .bladderDiary, .teachBack, .m6Review: return NKColors.coolGradient
+        default: return NKColors.tealGradient
+        }
     }
 
     private func load() async {
@@ -308,6 +406,7 @@ struct ClinicalScreenRunner: View {
 
 private struct ClinicalAssetView: View {
     let screen: ClinicalScreen
+    let testModeEnabled: Bool?
     var onInteractiveComplete: (() -> Void)?
 
     @State private var plan: ClinicalPlan?
@@ -315,6 +414,8 @@ private struct ClinicalAssetView: View {
     @State private var m7: M7Payload?
     @State private var m8: M8Payload?
     @State private var errorMessage: String?
+    @State private var isAwaitingPlan = false
+    @Environment(\.colorScheme) private var colorScheme
     private let service = ClinicalService()
 
     var body: some View {
@@ -333,9 +434,15 @@ private struct ClinicalAssetView: View {
                     textContent
                 }
             case .bladderDiary:
-                BladderDiaryHubView()
+                BladderDiaryHubView(testModeAvailable: testModeEnabled)
             case .plan:
-                if let plan { PlanCardView(plan: plan) } else { loadingContent }
+                if let plan {
+                    PlanCardView(plan: plan, onContinue: onInteractiveComplete)
+                } else if isAwaitingPlan {
+                    PlanPreparationView()
+                } else {
+                    loadingContent
+                }
             case .teachBack:
                 if let episode = screen.teachBack {
                     TeachBackView(episode: episode, onSubmitted: onInteractiveComplete)
@@ -361,23 +468,42 @@ private struct ClinicalAssetView: View {
 
     private var textContent: some View {
         Text((screen.body ?? "").htmlToAttributedString())
-            .font(.body)
+            .font(.system(.body, design: .rounded))
+            .foregroundStyle(NKColors.textPrimary(colorScheme))
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(18)
+            .glassCard(cornerRadius: 18)
     }
 
     private var loadingContent: some View {
         VStack(spacing: 12) {
             if let errorMessage {
-                Text(errorMessage).foregroundStyle(.secondary)
+                ClinicalInlineNotice(
+                    message: errorMessage,
+                    icon: "exclamationmark.triangle.fill",
+                    color: NKColors.danger
+                )
+                ClinicalSecondaryActionButton(
+                    title: "Tekrar dene",
+                    icon: "arrow.clockwise",
+                    action: { Task { await loadPayload() } }
+                )
             } else {
-                ProgressView()
+                ProgressView().tint(NKColors.accentTeal)
+                Text("Klinik bilgiler hazırlanıyor")
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(NKColors.textSecondary(colorScheme))
             }
         }
         .frame(maxWidth: .infinity, minHeight: 140)
+        .padding(18)
+        .glassCard(cornerRadius: 18)
     }
 
     private func loadPayload() async {
+        errorMessage = nil
+        isAwaitingPlan = false
         do {
             switch screen.kind {
             case .plan:
@@ -392,7 +518,13 @@ private struct ClinicalAssetView: View {
                 break
             }
         } catch {
-            errorMessage = error.localizedDescription
+            if screen.kind == .plan,
+               case NetworkError.serverError(let status, _) = error,
+               status == 404 {
+                isAwaitingPlan = true
+            } else {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }

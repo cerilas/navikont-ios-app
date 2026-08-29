@@ -47,18 +47,16 @@ struct DashboardView: View {
                             errorSection(message: errorMsg)
                         } else if let enrollment = viewModel.activeEnrollment {
                             if enrollment.currentDay > 0 && !isPendingReview {
-                                // Stats Row
+                                // Standard journey progress remains visible alongside clinical care.
                                 statsSection(enrollment: enrollment)
-                                
-                                // Progress Card
                                 progressCard(enrollment: enrollment)
                             }
 
                             if viewModel.clinicalState?.usesClinicalShell == true {
                                 clinicalProgramCard
                             }
-                            
-                            // Today's Tasks (or Pending Review card)
+
+                            // Standard daily journey continues in parallel.
                             tasksSection
                         }
                     }
@@ -310,9 +308,6 @@ struct DashboardView: View {
     }
     
     private var isPendingReview: Bool {
-        if viewModel.clinicalState?.usesClinicalShell == true {
-            return viewModel.clinicalState?.state == .awaitingReview
-        }
         // No journey assigned yet — waiting for manual or rule-based assignment
         guard viewModel.activeEnrollment?.journeyId == nil else { return false }
         return viewModel.todayTasks.count == 1 &&
@@ -345,7 +340,7 @@ struct DashboardView: View {
                 }
                 .padding(.horizontal, 20)
                 
-                if viewModel.clinicalState?.usesClinicalShell != true && !viewModel.todayTasks.isEmpty {
+                if !viewModel.todayTasks.isEmpty {
                     Button(action: {
                         if let enrollment = viewModel.activeEnrollment {
                             viewModel.updateCurrentDay(to: (enrollment.currentDay ?? 1) + 1)

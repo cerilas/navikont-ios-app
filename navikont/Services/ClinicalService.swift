@@ -18,8 +18,13 @@ final class ClinicalService {
         )
     }
 
-    func fetchCurrentDiarySession() async throws -> BladderDiarySession {
-        try await networkManager.get("/api/patient/m2/sessions/current")
+    func fetchCurrentDiarySession() async throws -> BladderDiarySession? {
+        do {
+            return try await networkManager.get("/api/patient/m2/sessions/current")
+        } catch NetworkError.serverError(let status, let message)
+            where status == 404 || message?.localizedCaseInsensitiveContains("SESSION_NOT_FOUND") == true {
+            return nil
+        }
     }
 
     func startDiarySession() async throws -> BladderDiarySession {
@@ -43,10 +48,13 @@ final class ClinicalService {
         )
     }
 
-    func submitDiary(sessionId: UUID) async throws -> BladderDiarySession {
+    func submitDiary(sessionId: UUID, testBypass: Bool = false) async throws -> BladderDiarySession {
         try await networkManager.post(
             "/api/patient/m2/submit",
-            body: ["sessionId": sessionId.uuidString]
+            body: [
+                "sessionId": sessionId.uuidString,
+                "testBypass": testBypass,
+            ]
         )
     }
 

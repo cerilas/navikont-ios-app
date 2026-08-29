@@ -103,6 +103,7 @@ class AuthService: ObservableObject {
     }
 
     func logout() {
+        ClinicalOfflineStore.shared.deactivate()
         networkManager.clearToken()
         UserDefaults.standard.removeObject(forKey: "authToken")
         UserDefaults.standard.removeObject(forKey: "currentUser")
