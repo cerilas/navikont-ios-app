@@ -296,8 +296,10 @@ struct DashboardView: View {
     }
     
     private var isPendingReview: Bool {
-        viewModel.todayTasks.count == 1 &&
-        viewModel.todayTasks.first?.module.title == "İnceleme Bekleniyor"
+        // No journey assigned yet — waiting for manual or rule-based assignment
+        guard viewModel.activeEnrollment?.journeyId == nil else { return false }
+        return viewModel.todayTasks.count == 1 &&
+               viewModel.todayTasks.first?.module.moduleType == "article"
     }
     
     private var tasksSection: some View {
