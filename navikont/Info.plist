@@ -18,5 +18,10 @@
 		<string>remote-notification</string>
 		<string>fetch</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>SplashBackground</string>
+	</dict>
 </dict>
 </plist>

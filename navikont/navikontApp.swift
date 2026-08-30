@@ -63,6 +63,7 @@ struct navikontApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authService = AuthService()
     @StateObject private var themeManager = ThemeManager.shared
+    @State private var isShowingSplash = true
     
     @AppStorage("app_language") private var appLanguage: String = "system"
     
@@ -73,11 +74,26 @@ struct navikontApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(authService)
-                .environmentObject(themeManager)
-                .preferredColorScheme(themeManager.currentMode.colorScheme)
-                .id(appLanguage) // Force redraw when language changes
+            ZStack {
+                ContentView()
+                    .id(appLanguage) // Force redraw when language changes
+
+                if isShowingSplash {
+                    SplashScreenView()
+                        .transition(.opacity)
+                        .zIndex(10)
+                }
+            }
+            .environmentObject(authService)
+            .environmentObject(themeManager)
+            .preferredColorScheme(themeManager.currentMode.colorScheme)
+            .task {
+                guard isShowingSplash else { return }
+                try? await Task.sleep(for: .milliseconds(1_650))
+                withAnimation(.easeOut(duration: 0.42)) {
+                    isShowingSplash = false
+                }
+            }
         }
     }
 }

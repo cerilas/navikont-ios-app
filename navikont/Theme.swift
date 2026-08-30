@@ -404,6 +404,8 @@ struct AppStrings {
         "İnceleme Bekleniyor": "Pending Review",
         " deniz@cerilas.com": " deniz@cerilas.com",
         "NaviKont": "NaviKont",
+        "NaviKont, Dijital Sağlık Asistanınız": "NaviKont, Your Digital Health Assistant",
+        "Güvenli • Kişisel • Sizinle birlikte": "Secure • Personal • By your side",
         "E-posta:": "Email:",
         "Şifremi Unuttum": "Forgot Password",
         "Anket Tamamlandı": "Survey Completed",
